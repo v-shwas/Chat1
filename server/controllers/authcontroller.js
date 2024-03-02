@@ -1,8 +1,8 @@
-import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import User from "../models/userModel.js";
+import { generateKey } from "crypto";
+import generateToken from "../utils/generateToken.js";
 
-const secretKey = crypto.randomBytes(64).toString("hex");
 const salt = bcrypt.genSaltSync(10);
 
 const SignIn = (req, res) => {
@@ -37,14 +37,25 @@ const SignUp = async (req, res) => {
       profilePic,
     });
 
-    await newUser.save();
+    if (newUser) {
+      const payload = {
+        _id: newUser._id,
+        fullname: newUser.fullname,
+        username: newUser.username,
+        profilePic: newUser.profilePic,
+      };
+      generateToken(payload, res);
+      await newUser.save();
 
-    res.status(201).json({
-      _id: newUser._id,
-      fullname: newUser.fullname,
-      username: newUser.username,
-      profilePic: newUser.profilePic,
-    });
+      // res.status(201).json({
+      //   _id: newUser._id,
+      //   fullname: newUser.fullname,
+      //   username: newUser.username,
+      //   profilePic: newUser.profilePic,
+      // });
+    } else {
+      res.status(400).json({ err: "Invalid User data" });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
