@@ -6,7 +6,30 @@ import generateToken from "../utils/generateToken.js";
 const salt = bcrypt.genSaltSync(10);
 
 const SignIn = (req, res) => {
-  res.json({ err: 0, msg: "Login success" });
+  const { userInfo, password } = req.body;
+  User.findOne({ $or: [{ email: userInfo }, { username: userInfo }] })
+    .then((data) => {
+      if (!data) {
+        // User not found
+        return res.status(404).json({ error: true, message: "User not found" });
+      }
+      if (bcrypt.compareSync(password, data.password)) {
+        const payload = {
+          _id: data._id,
+          fullname: data.fullname,
+          username: data.username,
+          profilePic: data.profilePic,
+        };
+        generateToken(payload, res);
+      } else {
+        res.json({ err: 1, msg: "Incorrect Password" });
+      }
+    })
+    .catch((error) => {
+      // Handle database errors
+      console.error("Error:", error);
+      res.status(500).json({ error: true, message: "Internal Server Error" });
+    });
 };
 const SignUp = async (req, res) => {
   try {
@@ -44,8 +67,9 @@ const SignUp = async (req, res) => {
         username: newUser.username,
         profilePic: newUser.profilePic,
       };
-      generateToken(payload, res);
+
       await newUser.save();
+      generateToken(payload, res);
 
       // res.status(201).json({
       //   _id: newUser._id,
