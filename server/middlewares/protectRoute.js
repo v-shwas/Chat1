@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 
-const protectRoute = (req, res, next) => {
+const protectRoute = async (req, res, next) => {
   try {
     const token = req.headers["authorization"];
     if (!token) {
@@ -13,12 +13,11 @@ const protectRoute = (req, res, next) => {
       return res.status(401).json({ error: "Unauthorised - Invalid Token" });
     }
 
-    const user = User.findOne(decoded._id).select("-password");
+    const user = await User.findOne(decoded._id).select("-password");
 
     if (!user) {
       return res.status(401).json({ error: "User Not Found" });
     }
-
     req.user = user;
 
     next();
