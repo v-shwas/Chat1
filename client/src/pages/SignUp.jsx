@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, Paper, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Container,
+  Paper,
+  TextField,
+  Typography,
+  Box,
+} from "@mui/material";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
@@ -61,45 +68,53 @@ const SignUp = () => {
             <TextField
               required
               fullWidth
-              label="FullName"
-              margin="normal"
-              variant="filled"
-              onChange={(e) => setFullname(e.target.value)}
-            />
-            <TextField
-              required
-              fullWidth
-              label="UserName"
-              margin="normal"
-              variant="filled"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-              required
-              fullWidth
               label="Email"
               margin="normal"
               variant="filled"
               onChange={(e) => setEmail(e.target.value)}
             />
-            <TextField
-              required
-              fullWidth
-              label="Password"
-              type="password"
-              margin="normal"
-              variant="filled"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <TextField
-              required
-              fullWidth
-              label="Confirm Password"
-              type="password"
-              margin="normal"
-              variant="filled"
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <Box display="flex" justifyContent="space-between">
+              <TextField
+                required
+                fullWidth
+                label="FullName"
+                margin="normal"
+                variant="filled"
+                onChange={(e) => setFullname(e.target.value)}
+                sx={{ marginRight: 1 }}
+              />
+              <TextField
+                required
+                fullWidth
+                label="UserName"
+                margin="normal"
+                variant="filled"
+                onChange={(e) => setUsername(e.target.value)}
+                sx={{ marginLeft: 1 }}
+              />
+            </Box>
+            <Box display="flex" justifyContent="space-between">
+              <TextField
+                required
+                fullWidth
+                label="Password"
+                type="password"
+                margin="normal"
+                variant="filled"
+                onChange={(e) => setPassword(e.target.value)}
+                sx={{ marginRight: 1 }}
+              />
+              <TextField
+                required
+                fullWidth
+                label="Confirm Password"
+                type="password"
+                margin="normal"
+                variant="filled"
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                sx={{ marginLeft: 1 }}
+              />
+            </Box>
             <FormControl>
               <FormLabel id="demo-row-radio-buttons-group-label">
                 Gender
