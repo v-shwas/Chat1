@@ -33,6 +33,7 @@ const SignIn = (req, res) => {
 };
 const SignUp = async (req, res) => {
   try {
+    console.log(req.body);
     const { fullname, username, email, password, confirmPassword, gender } =
       req.body;
 

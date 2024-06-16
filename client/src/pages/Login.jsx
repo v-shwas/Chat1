@@ -1,8 +1,30 @@
 import React, { useState } from "react";
 import { Button, Container, Paper, TextField, Typography } from "@mui/material";
+import { Link } from "react-router-dom";
+
+import { userLogin } from "../services/authServices";
 
 const Login = () => {
-  const [isLogin, setLogin] = useState(true);
+  const [userInfo, setUserInfo] = useState("");
+  const [password, setPassword] = useState("");
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    console.log(e);
+    if (userInfo != "" && password != "") {
+      // const data = new FormData(e.target);
+      // console.log(data);
+
+      const formData = {
+        userInfo: userInfo,
+        password: password,
+      };
+      userLogin(formData).then((res) => {
+        console.log(res.data);
+      });
+    }
+  };
+
   return (
     <Container
       component={"main"}
@@ -23,48 +45,52 @@ const Login = () => {
           alignItems: "center",
         }}
       >
-        {isLogin ? (
-          <>
-            <Typography variant="h5">Login</Typography>
-            <form style={{ width: "100%", marginTop: "1rem" }}>
-              <TextField
-                required
-                fullWidth
-                label="UserName"
-                margin="normal"
-                variant="outlined"
-              />
+        <>
+          <Typography variant="h5">Login</Typography>
+          <form
+            onSubmit={submitHandler}
+            style={{ width: "100%", marginTop: "1rem" }}
+          >
+            <TextField
+              required
+              fullWidth
+              type="text"
+              name="userInfo"
+              label="UserName"
+              margin="normal"
+              variant="outlined"
+              onChange={(e) => setUserInfo(e.target.value)}
+            />
 
-              <TextField
-                required
-                fullWidth
-                label="Password"
-                type="password"
-                margin="normal"
-                variant="outlined"
-              />
-              <Button
-                sx={{ marginTop: "1rem" }}
-                variant="contained"
-                color="primary"
-                type="submit"
-                fullWidth
-              >
-                Login
-              </Button>
+            <TextField
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              margin="normal"
+              variant="outlined"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              sx={{ marginTop: "1rem" }}
+              variant="contained"
+              color="primary"
+              type="submit"
+              fullWidth
+            >
+              Login
+            </Button>
 
-              <Typography textAlign={"center"} m={"1rem"}>
-                OR
-              </Typography>
+            <Typography textAlign={"center"} m={"1rem"}>
+              OR
+            </Typography>
 
-              <Button fullWidth variant="text" onClick={() => setLogin(false)}>
-                Sign Up instead
-              </Button>
-            </form>
-          </>
-        ) : (
-          <span>Register</span>
-        )}
+            <Button fullWidth variant="text" component={Link} to="/signup">
+              Sign Up instead
+            </Button>
+          </form>
+        </>
       </Paper>
     </Container>
   );

@@ -1,5 +1,6 @@
 import React, { lazy } from "react";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
+import SignUp from "./pages/SignUp";
 
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
@@ -11,8 +12,9 @@ const App = () => {
     <>
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/chat/:chatId" element={<Chat />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/about" element={<h1>About</h1>} />
