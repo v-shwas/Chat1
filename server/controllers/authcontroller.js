@@ -22,7 +22,7 @@ const SignIn = (req, res) => {
         };
         generateToken(payload, res);
       } else {
-        res.json({ err: 1, msg: "Incorrect Password" });
+        return res.status(401).json({ err: 1, msg: "Incorrect Password" });
       }
     })
     .catch((error) => {

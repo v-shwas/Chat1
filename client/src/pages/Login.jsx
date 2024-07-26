@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { Button, Container, Paper, TextField, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 import { userLogin } from "../services/authServices";
 
 const Login = () => {
   const [userInfo, setUserInfo] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     console.log(e);
     if (userInfo != "" && password != "") {
@@ -19,9 +20,12 @@ const Login = () => {
         userInfo: userInfo,
         password: password,
       };
-      userLogin(formData).then((res) => {
-        console.log(res.data);
-      });
+      userLogin(formData)
+        .then((res) => {
+          console.log(res.data);
+          navigate("/dashboard", { state: { user: res.data } });
+        })
+        .catch((err) => console.log("An error has occured", err));
     }
   };
 

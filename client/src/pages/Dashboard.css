@@ -1,0 +1,25 @@
+.dashBack{
+    background-image: url("/images/capp.jpg"); 
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.chatDiv1{
+    background-color: grey;
+    height: 80vh;
+    width: 20vw;
+    opacity: 50%;
+    border-radius: 10px;
+}
+.chatDiv2{
+    background-color: grey;
+    height: 80vh;
+    width: 40vw;
+    opacity: 50%;
+    border-radius: 10px;
+}

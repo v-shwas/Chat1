@@ -1,8 +1,8 @@
 import React, { lazy } from "react";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
 
-const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Groups = lazy(() => import("./pages/Groups"));
@@ -17,7 +17,7 @@ const App = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/chat/:chatId" element={<Chat />} />
           <Route path="/groups" element={<Groups />} />
-          <Route path="/about" element={<h1>About</h1>} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Router>
     </>
