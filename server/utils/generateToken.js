@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 const generateToken = (payload, res) => {
   const token = jwt.sign({ payload }, process.env.SECRET_KEY, {
-    expiresIn: "15d",
+    expiresIn: "1m",
   });
   console.log(jwt.decode(token));
   res.status(200).json({ err: 0, msg: "logged In", _token: token });

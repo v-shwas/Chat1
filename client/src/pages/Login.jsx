@@ -23,6 +23,7 @@ const Login = () => {
       userLogin(formData)
         .then((res) => {
           console.log(res.data);
+          localStorage.setItem("_token", res.data._token);
           navigate("/dashboard", { state: { user: res.data } });
         })
         .catch((err) => console.log("An error has occured", err));
@@ -47,6 +48,8 @@ const Login = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          color: "white",
         }}
       >
         <>
@@ -64,6 +67,26 @@ const Login = () => {
               margin="normal"
               variant="outlined"
               onChange={(e) => setUserInfo(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "white", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white", // Border color on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white", // Border color when focused
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "white", // Watermark (label) color
+                },
+                "& .MuiInputBase-input::placeholder": {
+                  color: "white", // Placeholder text color
+                },
+              }}
             />
 
             <TextField
@@ -75,11 +98,34 @@ const Login = () => {
               margin="normal"
               variant="outlined"
               onChange={(e) => setPassword(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "white", // Default border color
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white", // Border color on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white", // Border color when focused
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "white", // Watermark (label) color
+                },
+                "& .MuiInputBase-input::placeholder": {
+                  color: "white", // Placeholder text color
+                },
+              }}
             />
             <Button
-              sx={{ marginTop: "1rem" }}
+              sx={{
+                marginTop: "1rem",
+                color: "white",
+                backgroundColor: "rgb(56, 75, 105)",
+              }}
               variant="contained"
-              color="primary"
               type="submit"
               fullWidth
             >

@@ -10,4 +10,20 @@ const userRegister = (data) => {
   return axios.post(`${authAPI}/signup`, data);
 };
 
-export { userLogin, userRegister };
+const token = () => {
+  return localStorage.getItem("_token");
+};
+
+const isLoggedIn = () => {
+  if (token()) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const logout = () => {
+  localStorage.removeItem("_token");
+};
+
+export { userLogin, userRegister, token, isLoggedIn, logout };

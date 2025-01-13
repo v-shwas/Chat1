@@ -1,5 +1,13 @@
+/* .mainDiv{
+    background-image: url("/images/capp.jpg");
+    background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100vw;
+} */
+
 .dashBack{
-    background-image: url("/images/capp.jpg"); 
+     
   background-size: cover;
   background-position: center;
   height: 100vh;
@@ -7,19 +15,27 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 5px;
+  position: fixed;
+}
+.navbar{
+    opacity: 50%;
 }
 .chatDiv1{
     background-color: grey;
-    height: 80vh;
+    height: 80%;
     width: 20vw;
     opacity: 50%;
     border-radius: 10px;
 }
 .chatDiv2{
     background-color: grey;
-    height: 80vh;
+    height: 80%;
     width: 40vw;
     opacity: 50%;
     border-radius: 10px;
+}
+.chatDash{
+    height: 80vh;
+    display: flex;
+  gap: 5px;
 }
