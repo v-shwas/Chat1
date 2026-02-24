@@ -7,6 +7,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
@@ -15,13 +16,14 @@ import Radio from "@mui/material/Radio";
 import { Link } from "react-router-dom";
 import { userRegister } from "../services/authServices";
 
-const SignUp = () => {
+const SignUp = ({ setAuthUser }) => {
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [gender, setGender] = useState("");
+  const navigate = useNavigate(); // Add hook
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
@@ -39,6 +41,10 @@ const SignUp = () => {
 
     userRegister(formData).then((res) => {
       console.log(res.data);
+      if (res.status === 200 || res.status === 201) {
+        setAuthUser(res.data);
+        navigate("/dashboard");
+      }
     });
   };
 

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { userLogin } from "../services/authServices";
 
-const Login = () => {
+const Login = ({ setAuthUser }) => {
   const [userInfo, setUserInfo] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -13,9 +13,6 @@ const Login = () => {
     e.preventDefault();
     console.log(e);
     if (userInfo != "" && password != "") {
-      // const data = new FormData(e.target);
-      // console.log(data);
-
       const formData = {
         userInfo: userInfo,
         password: password,
@@ -23,7 +20,8 @@ const Login = () => {
       userLogin(formData)
         .then((res) => {
           console.log(res.data);
-          localStorage.setItem("_token", res.data._token);
+          // localStorage.setItem("_token", res.data._token);
+          setAuthUser(res.data); // Update App state
           navigate("/dashboard", { state: { user: res.data } });
         })
         .catch((err) => console.log("An error has occured", err));

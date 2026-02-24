@@ -2,28 +2,26 @@ import axios from "axios";
 
 const authAPI = "http://localhost:3000/api/auth";
 
+// Create an axios instance with default config
+const apiClient = axios.create({
+  baseURL: authAPI,
+  withCredentials: true,
+});
+
 const userLogin = (data) => {
-  return axios.post(`${authAPI}/login`, data);
+  return apiClient.post("/login", data);
 };
 
 const userRegister = (data) => {
-  return axios.post(`${authAPI}/signup`, data);
-};
-
-const token = () => {
-  return localStorage.getItem("_token");
-};
-
-const isLoggedIn = () => {
-  if (token()) {
-    return true;
-  } else {
-    return false;
-  }
+  return apiClient.post("/signup", data);
 };
 
 const logout = () => {
-  localStorage.removeItem("_token");
+  return apiClient.post("/logout");
 };
 
-export { userLogin, userRegister, token, isLoggedIn, logout };
+const checkAuth = () => {
+  return apiClient.get("/me");
+};
+
+export { userLogin, userRegister, logout, checkAuth };

@@ -21,6 +21,14 @@ const SignIn = (req, res) => {
           profilePic: data.profilePic,
         };
         generateToken(payload, res);
+        res.status(200).json({
+          _id: data._id,
+          fullname: data.fullname,
+          username: data.username,
+          profilePic: data.profilePic,
+          email: data.email,
+          gender: data.gender
+        });
       } else {
         return res.status(401).json({ err: 1, msg: "Incorrect Password" });
       }
@@ -72,12 +80,14 @@ const SignUp = async (req, res) => {
       await newUser.save();
       generateToken(payload, res);
 
-      // res.status(201).json({
-      //   _id: newUser._id,
-      //   fullname: newUser.fullname,
-      //   username: newUser.username,
-      //   profilePic: newUser.profilePic,
-      // });
+      res.status(201).json({
+        _id: newUser._id,
+        fullname: newUser.fullname,
+        username: newUser.username,
+        profilePic: newUser.profilePic,
+        email: newUser.email,
+        gender: newUser.gender
+      });
     } else {
       res.status(400).json({ err: "Invalid User data" });
     }
@@ -87,4 +97,27 @@ const SignUp = async (req, res) => {
   }
 };
 
-export { SignIn, SignUp };
+
+const Logout = (req, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const GetMe = async (req, res) => {
+  try {
+    // req.user is set by protectRoute middleware
+    const user = await User.findById(req.user._id).select("-password");
+    res.status(200).json(user);
+  } catch (error) {
+    console.log("Error in getMe controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export { SignIn, SignUp, Logout, GetMe };
+

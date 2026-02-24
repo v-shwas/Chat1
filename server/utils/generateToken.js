@@ -5,10 +5,15 @@ import jwt from "jsonwebtoken";
 
 const generateToken = (payload, res) => {
   const token = jwt.sign({ payload }, process.env.SECRET_KEY, {
-    expiresIn: "1m",
+    expiresIn: "15d",
   });
-  console.log(jwt.decode(token));
-  res.status(200).json({ err: 0, msg: "logged In", _token: token });
+
+  res.cookie("jwt", token, {
+    maxAge: 15 * 24 * 60 * 60 * 1000, 
+    httpOnly: true, // prevent XSS
+    sameSite: "strict", // CSRF
+    secure: process.env.NODE_ENV !== "development",
+  });
 };
 
 export default generateToken;

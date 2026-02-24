@@ -10,15 +10,21 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 
-const Dashboard = () => {
+import { logout as logoutService } from "../services/authServices";
+
+const Dashboard = ({ user }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = location.state || {};
-  console.log(user.msg);
+  // Fallback to location state if user prop not provided (though App should pass it)
+  const currentUser = user || location.state?.user; 
+  
+  // console.log(user?.msg); // Removed or fixed access
 
   const logout = () => {
-    localStorage.removeItem("_token");
-    navigate("/login");
+    logoutService().then(() => {
+        navigate("/login");
+        window.location.reload(); // To reset App state
+    });
   };
   return (
     <>
