@@ -1,57 +1,91 @@
-import React, { lazy, useEffect, useState } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import "./App.css";
 import { Route, Routes, BrowserRouter as Router, Navigate } from "react-router-dom";
 import SignUp from "./pages/SignUp";
-import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
-import { checkAuth } from "./services/authServices";
+import Dashboard from "./pages/Dashboard";
+import useAuthStore from "./store/useAuthStore";
+import useSocketStore from "./store/useSocketStore";
+import { Toaster } from "react-hot-toast";
 
-// const Login = lazy(() => import("./pages/Login"));
-const Chat = lazy(() => import("./pages/Chat"));
-const Groups = lazy(() => import("./pages/Groups"));
-
-const ProtectedRoute = ({ children, authUser, loading }) => {
-  if (loading) return <div>Loading...</div>;
+const ProtectedRoute = ({ children }) => {
+  const { authUser } = useAuthStore();
   return authUser ? children : <Navigate to="/login" />;
 };
 
+const PublicRoute = ({ children }) => {
+  const { authUser } = useAuthStore();
+  return authUser ? <Navigate to="/dashboard" /> : children;
+};
+
 const App = () => {
-  const [authUser, setAuthUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { checkAuth, authUser } = useAuthStore();
+  const { connectSocket, disconnectSocket } = useSocketStore();
 
   useEffect(() => {
-    checkAuth()
-      .then((res) => {
-        setAuthUser(res.data);
-      })
-      .catch((err) => {
-        console.log("Not authenticated", err);
-        setAuthUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (authUser?._id) {
+      connectSocket(authUser._id);
+    }
+    return () => {
+      disconnectSocket();
+    };
+  }, [authUser]);
 
   return (
     <>
       <Router>
         <Routes>
-          <Route path="/" element={authUser ? <Navigate to="/dashboard" /> : <Login setAuthUser={setAuthUser} />} />
-          <Route path="/login" element={authUser ? <Navigate to="/dashboard" /> : <Login setAuthUser={setAuthUser} />} />
-          <Route path="/signup" element={authUser ? <Navigate to="/dashboard" /> : <SignUp setAuthUser={setAuthUser} />} />
-          <Route path="/chat/:chatId" element={<Chat />} /> {/* Might need protection too */}
-          <Route path="/groups" element={<Groups />} />
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <SignUp />
+              </PublicRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute authUser={authUser} loading={loading}>
-                <Dashboard user={authUser} />
+              <ProtectedRoute>
+                <Dashboard />
               </ProtectedRoute>
             }
           />
         </Routes>
       </Router>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "var(--bg-tertiary)",
+            color: "var(--text-primary)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            fontSize: "14px",
+          },
+        }}
+      />
     </>
   );
 };

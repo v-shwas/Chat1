@@ -1,31 +1,33 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 
+import { app, server } from "./socket/socket.js";
 import authRoutes from "./routes/authRoutes.js";
 import msgRoutes from "./routes/msgRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import connectMongoDb from "./db/dbconnect.js";
 
-const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 
-
 app.use(express.json());
-app.use(cookieParser());
-// Update cors to allow credentials
-app.use(cors({
-  origin: "http://localhost:5173", // Replace with your frontend URL
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/message", msgRoutes);
 app.use("/api/users", userRoutes);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   connectMongoDb();
-  console.log(`server running on ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
