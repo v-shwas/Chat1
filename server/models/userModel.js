@@ -30,6 +30,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    about: {
+      type: String,
+      default: "Hey there! I'm using Neural Core.",
+    },
+    lastSeen: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );

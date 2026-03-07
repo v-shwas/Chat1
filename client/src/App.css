@@ -1,43 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
 
 :root {
-  /* Color Palette */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-tertiary: #1a1a2e;
-  --bg-glass: rgba(255, 255, 255, 0.04);
-  --bg-glass-hover: rgba(255, 255, 255, 0.08);
+  /* Neural Core Color Palette */
+  --bg-primary: #060a13;
+  --bg-secondary: #0c1120;
+  --bg-tertiary: #131a2b;
+  --bg-panel: #0f1628;
+  --bg-glass: rgba(0, 229, 255, 0.03);
+  --bg-glass-hover: rgba(0, 229, 255, 0.07);
+  --bg-card: rgba(13, 21, 40, 0.8);
 
-  --accent-primary: #6c63ff;
-  --accent-secondary: #a78bfa;
-  --accent-gradient: linear-gradient(135deg, #6c63ff 0%, #a78bfa 50%, #c084fc 100%);
-  --accent-glow: 0 0 20px rgba(108, 99, 255, 0.3);
+  /* Cyan + Purple Accent System */
+  --accent-cyan: #00e5ff;
+  --accent-cyan-dim: #00bcd4;
+  --accent-purple: #7c4dff;
+  --accent-purple-light: #b388ff;
+  --accent-magenta: #e040fb;
+  --accent-gradient: linear-gradient(135deg, #7c4dff 0%, #b388ff 50%, #e040fb 100%);
+  --accent-cyan-gradient: linear-gradient(135deg, #00bcd4 0%, #00e5ff 100%);
+  --accent-glow-cyan: 0 0 20px rgba(0, 229, 255, 0.3);
+  --accent-glow-purple: 0 0 20px rgba(124, 77, 255, 0.3);
 
-  --text-primary: #f0f0f5;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  /* Text */
+  --text-primary: #e0e6f0;
+  --text-secondary: #8b9cc0;
+  --text-muted: #4a5a80;
+  --text-cyan: #00e5ff;
+  --text-purple: #b388ff;
 
-  --border-color: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(108, 99, 255, 0.3);
+  /* Borders */
+  --border-color: rgba(0, 229, 255, 0.08);
+  --border-glow: rgba(0, 229, 255, 0.15);
+  --border-accent: rgba(124, 77, 255, 0.3);
+  --border-subtle: rgba(255, 255, 255, 0.04);
 
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  /* Status */
+  --success: #00e676;
+  --danger: #ff1744;
+  --warning: #ffab00;
+  --info: #00e5ff;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 40px rgba(108, 99, 255, 0.15);
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
+  --shadow-glow-cyan: 0 0 30px rgba(0, 229, 255, 0.1);
+  --shadow-glow-purple: 0 0 30px rgba(124, 77, 255, 0.1);
+  --shadow-inset: inset 0 1px 0 rgba(0, 229, 255, 0.05);
 
+  /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
   --transition-slow: 0.4s ease;
+
+  /* Fonts */
+  --font-heading: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
 }
 
 * {
@@ -53,29 +79,44 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
   background: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
-/* Scrollbar */
+/* Scrollbar - Cyberpunk */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 229, 255, 0.15);
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 229, 255, 0.3);
 }
 
-/* Animations */
+/* Placeholder color */
+::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* Selection */
+::selection {
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--text-primary);
+}
+
+/* ===== ANIMATIONS ===== */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -114,12 +155,23 @@ body {
   }
 }
 
-@keyframes pulse-glow {
+@keyframes pulse-cyan {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(108, 99, 255, 0.3);
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
   }
   50% {
-    box-shadow: 0 0 20px rgba(108, 99, 255, 0.6);
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.85);
   }
 }
 
@@ -128,6 +180,55 @@ body {
   100% { background-position: 200% 0; }
 }
 
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes holographic-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes border-flow {
+  0% {
+    border-color: rgba(0, 229, 255, 0.1);
+  }
+  50% {
+    border-color: rgba(0, 229, 255, 0.3);
+  }
+  100% {
+    border-color: rgba(0, 229, 255, 0.1);
+  }
+}
+
+@keyframes typing-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Utility Classes */
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease forwards;
 }
@@ -136,10 +237,40 @@ body {
   animation: fadeIn 0.3s ease forwards;
 }
 
-/* Glass effect utility */
+/* Glass effect utility - Cyberpunk */
 .glass {
   background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
+}
+
+/* Glow text */
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+/* Neural grid background pattern */
+.neural-grid {
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Focus styles for inputs */
+input:focus, textarea:focus {
+  border-color: rgba(0, 229, 255, 0.3) !important;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.08), var(--shadow-inset) !important;
+  outline: none;
+}
+
+/* Button hover glow */
+button:hover {
+  filter: brightness(1.1);
+}
+
+/* Badge utility */
+.badge-glow {
+  animation: pulse-cyan 2s infinite;
 }

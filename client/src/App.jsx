@@ -80,9 +80,13 @@ const App = () => {
           style: {
             background: "var(--bg-tertiary)",
             color: "var(--text-primary)",
-            border: "1px solid var(--border-color)",
+            border: "1px solid var(--border-glow)",
             borderRadius: "var(--radius-md)",
-            fontSize: "14px",
+            fontSize: "13px",
+            fontFamily: "'Rajdhani', sans-serif",
+            fontWeight: "500",
+            boxShadow: "0 4px 20px rgba(0, 229, 255, 0.1)",
+            letterSpacing: "0.02em",
           },
         }}
       />
