@@ -10,15 +10,31 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: function (origin, callback) {
+      // Match the CORS config in index.js
+      // In production, set ALLOWED_ORIGINS env var
+      if (!origin) return callback(null, true);
+      const allowedOrigins = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(",")
+        : null;
+      if (allowedOrigins) {
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error("Not allowed by CORS"));
+      }
       return callback(null, true);
     },
     methods: ["GET", "POST"],
     credentials: true,
   },
+  // Connection limits
+  pingTimeout: 60000,
+  pingInterval: 25000,
 });
 
 // userId → socketId mapping
 const userSocketMap = {};
+const MAX_ICE_BUFFER = 50; // Prevent unbounded ICE candidate buffering
 
 export const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
@@ -28,18 +44,21 @@ io.on("connection", async (socket) => {
   console.log("User connected:", socket.id);
 
   const userId = socket.handshake.query.userId;
-  if (userId && userId !== "undefined") {
-    userSocketMap[userId] = socket.id;
+  if (!userId || userId === "undefined") {
+    socket.disconnect(true);
+    return;
+  }
 
-    // Join all group rooms this user belongs to
-    try {
-      const groups = await Group.find({ members: userId });
-      groups.forEach((group) => {
-        socket.join(`group_${group._id}`);
-      });
-    } catch (err) {
-      console.log("Error joining group rooms:", err.message);
-    }
+  userSocketMap[userId] = socket.id;
+
+  // Join all group rooms this user belongs to
+  try {
+    const groups = await Group.find({ members: userId }).select("_id");
+    groups.forEach((group) => {
+      socket.join(`group_${group._id}`);
+    });
+  } catch (err) {
+    console.error("Error joining group rooms:", err.message);
   }
 
   // Broadcast online users
@@ -78,20 +97,23 @@ io.on("connection", async (socket) => {
 
   // ── WebRTC Signaling ──
   socket.on("callUser", ({ to, signal, callType, callerName }) => {
+    if (!to || !signal || !callType) return;
     const receiverSocketId = getReceiverSocketId(to);
     if (receiverSocketId) {
-      // IMPORTANT: Use userId from handshake, NOT socket.id
-      // This ensures answerCall/iceCandidate/endCall can route back via getReceiverSocketId
       io.to(receiverSocketId).emit("incomingCall", {
         from: userId,
         signal,
         callType,
         callerName,
       });
+    } else {
+      // Notify caller that receiver is offline
+      socket.emit("callFailed", { reason: "User is offline" });
     }
   });
 
   socket.on("answerCall", ({ to, signal }) => {
+    if (!to || !signal) return;
     const callerSocketId = getReceiverSocketId(to);
     if (callerSocketId) {
       io.to(callerSocketId).emit("callAccepted", { signal });
@@ -99,6 +121,7 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("iceCandidate", ({ to, candidate }) => {
+    if (!to || !candidate) return;
     const targetSocketId = getReceiverSocketId(to);
     if (targetSocketId) {
       io.to(targetSocketId).emit("iceCandidate", { candidate });
@@ -106,6 +129,7 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("endCall", ({ to }) => {
+    if (!to) return;
     const targetSocketId = getReceiverSocketId(to);
     if (targetSocketId) {
       io.to(targetSocketId).emit("callEnded");
@@ -113,6 +137,7 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("rejectCall", ({ to }) => {
+    if (!to) return;
     const callerSocketId = getReceiverSocketId(to);
     if (callerSocketId) {
       io.to(callerSocketId).emit("callRejected");
@@ -121,18 +146,17 @@ io.on("connection", async (socket) => {
 
   // ── Join Group Room (when a new group is created/joined) ──
   socket.on("joinGroup", (groupId) => {
-    socket.join(`group_${groupId}`);
+    if (groupId) socket.join(`group_${groupId}`);
   });
 
   socket.on("leaveGroupRoom", (groupId) => {
-    socket.leave(`group_${groupId}`);
+    if (groupId) socket.leave(`group_${groupId}`);
   });
 
   // ── Disconnect ──
   socket.on("disconnect", async () => {
     console.log("User disconnected:", socket.id);
     if (userId) {
-      // Update last seen
       try {
         await User.findByIdAndUpdate(userId, { lastSeen: new Date() });
       } catch (err) {

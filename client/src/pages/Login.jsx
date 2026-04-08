@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
+import GlassButton from "../components/ui/GlassButton";
 
 const Login = () => {
   const [userInfo, setUserInfo] = useState("");
@@ -17,100 +18,64 @@ const Login = () => {
 
   return (
     <div style={styles.wrapper}>
-      {/* Ambient glow effects */}
-      <div style={styles.glowOrb1} />
-      <div style={styles.glowOrb2} />
-      <div style={styles.glowOrb3} />
-
-      {/* Neural grid background */}
-      <div style={styles.gridBg} />
-
-      {/* Scan line effect */}
-      <div style={styles.scanLine} />
-
       <div style={styles.card} className="animate-fade-in-up">
-        {/* Logo / Brand */}
-        <div style={styles.logoContainer}>
+        {/* Logo */}
+        <div style={styles.logoSection}>
           <div style={styles.logoIcon}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
           </div>
-          <h1 style={styles.logoText}>NEURAL CORE</h1>
+          <h1 style={styles.logoText}>ChatFlow</h1>
         </div>
-
-        <p style={styles.subtitle}>Authenticate to access quantum neural network</p>
-
-        {/* Status Indicator */}
-        <div style={styles.statusBar}>
-          <span style={styles.statusDot} />
-          <span style={styles.statusLabel}>SECURE CHANNEL ACTIVE</span>
-        </div>
+        <p style={styles.subtitle}>Sign in to your account</p>
 
         <form onSubmit={submitHandler} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>NEURAL ID</label>
+            <label style={styles.label}>Email or Username</label>
             <input
               type="text"
               value={userInfo}
               onChange={(e) => setUserInfo(e.target.value)}
-              placeholder="Enter your neural identifier"
+              placeholder="Enter your email or username"
               style={styles.input}
               required
             />
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>ACCESS KEY</label>
+            <label style={styles.label}>Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter access encryption key"
+              placeholder="Enter your password"
               style={styles.input}
               required
             />
           </div>
 
-          <button
-            type="submit"
+          <GlassButton
+            variant="accent"
+            size="lg"
+            loading={isLoggingIn}
             disabled={isLoggingIn}
-            style={{
-              ...styles.button,
-              opacity: isLoggingIn ? 0.7 : 1,
-              cursor: isLoggingIn ? "not-allowed" : "pointer",
-            }}
+            onClick={submitHandler}
+            style={{ width: "100%", marginTop: 4 }}
           >
-            {isLoggingIn ? (
-              <span style={styles.loadingDots}>AUTHENTICATING...</span>
-            ) : (
-              <>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                </svg>
-                INITIATE LINK
-              </>
-            )}
-          </button>
+            Sign In
+          </GlassButton>
         </form>
 
         <div style={styles.divider}>
           <span style={styles.dividerLine} />
-          <span style={styles.dividerText}>OR</span>
+          <span style={styles.dividerText}>or</span>
           <span style={styles.dividerLine} />
         </div>
 
         <Link to="/signup" style={styles.switchLink}>
-          New to the network? <span style={styles.switchAccent}>Register Node</span>
+          Don't have an account? <span style={styles.switchAccent}>Sign Up</span>
         </Link>
-
-        {/* Footer */}
-        <div style={styles.cardFooter}>
-          <span style={styles.footerText}>NEURAL LATTICE ENCRYPTED</span>
-          <span style={styles.footerDot}>•</span>
-          <span style={styles.footerText}>PROTOCOL V.9.4</span>
-        </div>
       </div>
     </div>
   );
@@ -123,127 +88,51 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "var(--bg-primary)",
     position: "relative",
-    overflow: "hidden",
-  },
-  gridBg: {
-    position: "absolute",
-    inset: 0,
-    backgroundImage:
-      "linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px)",
-    backgroundSize: "50px 50px",
-    pointerEvents: "none",
-  },
-  scanLine: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "2px",
-    background: "linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.15), transparent)",
-    animation: "scan-line 8s linear infinite",
-    pointerEvents: "none",
-  },
-  glowOrb1: {
-    position: "absolute",
-    width: "500px",
-    height: "500px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)",
-    top: "-150px",
-    right: "-150px",
-    pointerEvents: "none",
-  },
-  glowOrb2: {
-    position: "absolute",
-    width: "400px",
-    height: "400px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(124,77,255,0.06) 0%, transparent 70%)",
-    bottom: "-100px",
-    left: "-100px",
-    pointerEvents: "none",
-  },
-  glowOrb3: {
-    position: "absolute",
-    width: "300px",
-    height: "300px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(0,229,255,0.04) 0%, transparent 70%)",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    pointerEvents: "none",
+    zIndex: 10,
   },
   card: {
     width: "100%",
-    maxWidth: "440px",
+    maxWidth: "420px",
     padding: "40px",
-    borderRadius: "var(--radius-xl)",
-    background: "var(--bg-secondary)",
-    border: "1px solid var(--border-glow)",
-    boxShadow: "var(--shadow-lg), var(--shadow-glow-cyan)",
-    position: "relative",
-    zIndex: 1,
+    borderRadius: "var(--r-xl)",
+    background: "rgba(255,255,255,0.04)",
+    backdropFilter: "blur(20px) saturate(180%)",
+    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+    border: "1px solid var(--glass-border)",
+    boxShadow: "var(--glass-shadow)",
   },
-  logoContainer: {
+  logoSection: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "14px",
-    marginBottom: "10px",
+    gap: "12px",
+    marginBottom: "8px",
   },
   logoIcon: {
-    width: "52px",
-    height: "52px",
-    borderRadius: "var(--radius-md)",
-    background: "linear-gradient(135deg, rgba(0,229,255,0.12) 0%, rgba(124,77,255,0.12) 100%)",
-    border: "1px solid rgba(0,229,255,0.2)",
+    width: "48px",
+    height: "48px",
+    borderRadius: "var(--r-md)",
+    background: "var(--accent-dim)",
+    border: "1px solid rgba(108,99,255,0.3)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "var(--accent-cyan)",
-    animation: "pulse-cyan 3s infinite",
+    color: "var(--accent)",
+    animation: "glow-pulse 3s infinite",
   },
   logoText: {
-    fontFamily: "var(--font-heading)",
-    fontSize: "24px",
+    fontFamily: "var(--font-display)",
+    fontSize: "28px",
     fontWeight: "800",
-    color: "var(--accent-cyan)",
-    letterSpacing: "0.15em",
+    color: "var(--text-primary)",
   },
   subtitle: {
     textAlign: "center",
-    color: "var(--text-muted)",
-    fontSize: "13px",
+    color: "var(--text-secondary)",
+    fontSize: "14px",
     fontFamily: "var(--font-body)",
-    fontWeight: "500",
-    marginBottom: "16px",
-  },
-  statusBar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    padding: "8px 16px",
-    borderRadius: "var(--radius-full)",
-    background: "rgba(0, 229, 255, 0.04)",
-    border: "1px solid rgba(0, 229, 255, 0.08)",
     marginBottom: "28px",
-  },
-  statusDot: {
-    width: "6px",
-    height: "6px",
-    borderRadius: "50%",
-    background: "var(--accent-cyan)",
-    animation: "pulse-dot 2s infinite",
-  },
-  statusLabel: {
-    fontFamily: "var(--font-mono)",
-    fontSize: "9px",
-    color: "var(--accent-cyan)",
-    letterSpacing: "0.15em",
   },
   form: {
     display: "flex",
@@ -257,51 +146,21 @@ const styles = {
   },
   label: {
     fontFamily: "var(--font-mono)",
-    fontSize: "10px",
-    fontWeight: "400",
+    fontSize: "11px",
     color: "var(--text-muted)",
-    letterSpacing: "0.15em",
+    letterSpacing: "0.05em",
   },
   input: {
     width: "100%",
-    padding: "14px 16px",
-    borderRadius: "var(--radius-md)",
-    border: "1px solid var(--border-color)",
-    background: "rgba(0, 229, 255, 0.03)",
+    padding: "12px 16px",
+    borderRadius: "var(--r-md)",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
     color: "var(--text-primary)",
     fontSize: "14px",
     fontFamily: "var(--font-body)",
-    fontWeight: "500",
     outline: "none",
-    transition: "border-color var(--transition-fast), box-shadow var(--transition-fast)",
-    letterSpacing: "0.02em",
-  },
-  button: {
-    width: "100%",
-    padding: "14px",
-    borderRadius: "var(--radius-md)",
-    border: "none",
-    background: "linear-gradient(135deg, rgba(0,229,255,0.15) 0%, rgba(0,188,212,0.2) 100%)",
-    border: "1px solid rgba(0,229,255,0.25)",
-    color: "var(--accent-cyan)",
-    fontFamily: "var(--font-heading)",
-    fontSize: "12px",
-    fontWeight: "700",
-    letterSpacing: "0.15em",
-    cursor: "pointer",
-    transition: "all var(--transition-fast)",
-    boxShadow: "0 4px 20px rgba(0, 229, 255, 0.15)",
-    marginTop: "4px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-  },
-  loadingDots: {
-    display: "inline-block",
-    fontFamily: "var(--font-mono)",
-    fontSize: "10px",
-    letterSpacing: "0.15em",
+    transition: "border-color var(--dur-normal) var(--ease-smooth)",
   },
   divider: {
     display: "flex",
@@ -312,47 +171,24 @@ const styles = {
   dividerLine: {
     flex: 1,
     height: "1px",
-    background: "var(--border-color)",
+    background: "var(--border)",
   },
   dividerText: {
-    fontSize: "10px",
+    fontSize: "12px",
     fontFamily: "var(--font-mono)",
     color: "var(--text-muted)",
-    letterSpacing: "0.1em",
   },
   switchLink: {
     display: "block",
     textAlign: "center",
     color: "var(--text-secondary)",
-    fontSize: "13px",
+    fontSize: "14px",
     fontFamily: "var(--font-body)",
-    fontWeight: "500",
     textDecoration: "none",
-    transition: "color var(--transition-fast)",
   },
   switchAccent: {
-    color: "var(--accent-cyan)",
-    fontWeight: "700",
-  },
-  cardFooter: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-    marginTop: "28px",
-    paddingTop: "16px",
-    borderTop: "1px solid var(--border-color)",
-  },
-  footerText: {
-    fontFamily: "var(--font-mono)",
-    fontSize: "8px",
-    color: "var(--text-muted)",
-    letterSpacing: "0.15em",
-  },
-  footerDot: {
-    color: "var(--text-muted)",
-    fontSize: "6px",
-    opacity: 0.5,
+    color: "var(--accent)",
+    fontWeight: "600",
   },
 };
 

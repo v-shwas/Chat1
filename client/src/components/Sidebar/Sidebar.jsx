@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import useChatStore from "../../store/useChatStore";
 import useSocketStore from "../../store/useSocketStore";
 import useGroupStore from "../../store/useGroupStore";
-
-const navItems = [
-  { id: "stream", icon: "⌐", label: "Core Stream" },
-  { id: "groups", icon: "◈", label: "Node Network" },
-  { id: "logs", icon: "◎", label: "Synapse Logs" },
-  { id: "history", icon: "⊕", label: "Sync History" },
-];
+import Avatar from "../ui/Avatar";
+import { MessageSquare, Users, Plus, Search } from "lucide-react";
 
 const Sidebar = () => {
   const { users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
@@ -18,10 +13,11 @@ const Sidebar = () => {
     createGroup, subscribeToGroupMessages, unsubscribeFromGroupMessages,
   } = useGroupStore();
   const { socket } = useSocketStore();
-  const [activeNav, setActiveNav] = useState("stream");
+  const [activeTab, setActiveTab] = useState("chats");
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     getMyGroups();
@@ -58,107 +54,123 @@ const Sidebar = () => {
     );
   };
 
+  const filteredUsers = users.filter((u) =>
+    u.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredGroups = groups.filter((g) =>
+    g.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div style={styles.sidebar}>
-      {/* Navigation */}
-      <div style={styles.navSection}>
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            style={{
-              ...styles.navItem,
-              ...(activeNav === item.id ? styles.navItemActive : {}),
-            }}
-            onClick={() => setActiveNav(item.id)}
-            title={item.label}
-          >
-            <span style={styles.navIcon}>{item.icon}</span>
-            <span style={styles.navLabel}>{item.label}</span>
-          </button>
-        ))}
+      {/* ── Search ── */}
+      <div style={styles.searchSection}>
+        <div style={styles.searchBar}>
+          <Search size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+          <input
+            type="text"
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={styles.searchInput}
+          />
+        </div>
       </div>
 
-      {/* Content */}
+      {/* ── Tabs ── */}
+      <div style={styles.tabs}>
+        <button
+          style={{ ...styles.tab, ...(activeTab === "chats" ? styles.tabActive : {}) }}
+          onClick={() => setActiveTab("chats")}
+        >
+          <MessageSquare size={14} />
+          Chats
+        </button>
+        <button
+          style={{ ...styles.tab, ...(activeTab === "groups" ? styles.tabActive : {}) }}
+          onClick={() => setActiveTab("groups")}
+        >
+          <Users size={14} />
+          Groups
+        </button>
+      </div>
+
+      {/* ── Content ── */}
       <div style={styles.content}>
-        {/* Core Stream — Users */}
-        {activeNav === "stream" && (
-          <>
-            <div style={styles.sectionHeader}>
-              <span style={styles.sectionHeaderText}>DIRECT CHANNELS</span>
-              <span style={styles.sectionCount}>{users.length}</span>
-            </div>
-            <div style={styles.userList}>
-              {isUsersLoading ? (
-                [1, 2, 3, 4].map((i) => <div key={i} style={styles.skeleton} />)
-              ) : (
-                users.map((user) => {
-                  const isOnline = onlineUsers.includes(user._id);
-                  const isActive = selectedUser?._id === user._id;
-                  return (
-                    <button
-                      key={user._id}
-                      style={{ ...styles.userItem, ...(isActive ? styles.userItemActive : {}) }}
-                      onClick={() => handleSelectUser(user)}
-                    >
-                      <div style={styles.avatarContainer}>
-                        <img
-                          src={user.profilePic || `https://api.dicebear.com/7.x/initials/svg?seed=${user.fullname}`}
-                          alt={user.fullname}
-                          style={styles.avatar}
-                        />
-                        <span style={{ ...styles.statusDot, background: isOnline ? "var(--success)" : "var(--text-muted)" }} />
-                      </div>
-                      <div style={styles.userInfo}>
-                        <span style={styles.userName}>{user.fullname}</span>
-                        <span style={styles.userStatus}>
-                          {isOnline ? "Neural link active" : "Offline"}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </>
+        {activeTab === "chats" && (
+          <div style={styles.list}>
+            {isUsersLoading ? (
+              [1, 2, 3, 4].map((i) => <div key={i} style={styles.skeleton} />)
+            ) : filteredUsers.length === 0 ? (
+              <p style={styles.emptyText}>No users found</p>
+            ) : (
+              filteredUsers.map((user) => {
+                const isOnline = onlineUsers.includes(user._id);
+                const isActive = selectedUser?._id === user._id;
+                return (
+                  <button
+                    key={user._id}
+                    style={{ ...styles.contactItem, ...(isActive ? styles.contactActive : {}) }}
+                    onClick={() => handleSelectUser(user)}
+                  >
+                    {isActive && <div style={styles.activeBar} />}
+                    <Avatar
+                      src={user.profilePic}
+                      name={user.fullname}
+                      size="sm"
+                      online={isOnline}
+                    />
+                    <div style={styles.contactInfo}>
+                      <span style={styles.contactName}>{user.fullname}</span>
+                      <span style={styles.contactStatus}>
+                        {isOnline ? "Online" : "Offline"}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
         )}
 
-        {/* Groups — Node Network */}
-        {activeNav === "groups" && (
+        {activeTab === "groups" && (
           <>
-            <div style={styles.sectionHeader}>
-              <span style={styles.sectionHeaderText}>GROUP CHANNELS</span>
+            <div style={styles.groupHeader}>
+              <span style={styles.sectionLabel}>
+                Groups ({groups.length})
+              </span>
               <button
-                style={styles.createGroupBtn}
+                style={styles.addBtn}
                 onClick={() => setShowCreateGroup(!showCreateGroup)}
               >
-                +
+                <Plus size={14} />
               </button>
             </div>
 
             {showCreateGroup && (
-              <div style={styles.createGroupForm}>
+              <div style={styles.createForm}>
                 <input
                   type="text"
                   placeholder="Group name..."
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
-                  style={styles.createGroupInput}
+                  style={styles.createInput}
                 />
-                <span style={styles.memberSelectLabel}>SELECT MEMBERS</span>
-                <div style={styles.memberList}>
+                <span style={styles.sectionLabel}>Select Members</span>
+                <div style={styles.memberPicker}>
                   {users.map((user) => (
                     <button
                       key={user._id}
                       style={{
-                        ...styles.memberItem,
-                        ...(selectedMembers.includes(user._id) ? styles.memberItemSelected : {}),
+                        ...styles.memberChip,
+                        ...(selectedMembers.includes(user._id) ? styles.memberChipActive : {}),
                       }}
                       onClick={() => toggleMember(user._id)}
                     >
-                      <span>{user.fullname}</span>
-                      {selectedMembers.includes(user._id) && (
-                        <span style={styles.checkMark}>✓</span>
-                      )}
+                      {user.fullname}
+                      {selectedMembers.includes(user._id) && " ✓"}
                     </button>
                   ))}
                 </div>
@@ -170,29 +182,28 @@ const Sidebar = () => {
                     opacity: groupName.trim() && selectedMembers.length > 0 ? 1 : 0.4,
                   }}
                 >
-                  CREATE GROUP
+                  Create Group
                 </button>
               </div>
             )}
 
-            <div style={styles.userList}>
-              {groups.length === 0 ? (
-                <p style={styles.emptyText}>No groups yet. Create one!</p>
+            <div style={styles.list}>
+              {filteredGroups.length === 0 ? (
+                <p style={styles.emptyText}>No groups yet</p>
               ) : (
-                groups.map((group) => {
+                filteredGroups.map((group) => {
                   const isActive = selectedGroup?._id === group._id;
                   return (
                     <button
                       key={group._id}
-                      style={{ ...styles.userItem, ...(isActive ? styles.userItemActive : {}) }}
+                      style={{ ...styles.contactItem, ...(isActive ? styles.contactActive : {}) }}
                       onClick={() => handleSelectGroup(group)}
                     >
-                      <div style={styles.groupAvatarContainer}>
-                        <span style={styles.groupIcon}>◈</span>
-                      </div>
-                      <div style={styles.userInfo}>
-                        <span style={styles.userName}>{group.name}</span>
-                        <span style={styles.userStatus}>
+                      {isActive && <div style={styles.activeBar} />}
+                      <Avatar name={group.name} size="sm" />
+                      <div style={styles.contactInfo}>
+                        <span style={styles.contactName}>{group.name}</span>
+                        <span style={styles.contactStatus}>
                           {group.members?.length || 0} members
                         </span>
                       </div>
@@ -203,31 +214,6 @@ const Sidebar = () => {
             </div>
           </>
         )}
-
-        {/* Placeholder for other nav items */}
-        {(activeNav === "logs" || activeNav === "history") && (
-          <div style={styles.placeholderSection}>
-            <div style={styles.placeholderIcon}>
-              {activeNav === "logs" ? "◎" : "⊕"}
-            </div>
-            <p style={styles.placeholderText}>
-              {activeNav === "logs" ? "SYNAPSE LOGS" : "SYNC HISTORY"}
-            </p>
-            <p style={styles.placeholderSubtext}>Module initializing...</p>
-          </div>
-        )}
-      </div>
-
-      {/* Neural Sync */}
-      <div style={styles.syncSection}>
-        <div style={styles.syncHeader}>
-          <span style={styles.syncLabel}>NEURAL SYNC</span>
-          <span style={styles.syncValue}>98.4%</span>
-        </div>
-        <div style={styles.syncBar}>
-          <div style={styles.syncProgress} />
-        </div>
-        <button style={styles.syncButton}>⚡ INITIATE SYNC</button>
       </div>
     </div>
   );
@@ -240,206 +226,189 @@ const styles = {
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    background: "var(--bg-secondary)",
-    borderRight: "1px solid var(--border-color)",
+    background: "rgba(3, 4, 10, 0.65)",
+    backdropFilter: "blur(24px)",
+    WebkitBackdropFilter: "blur(24px)",
+    borderRight: "1px solid var(--border)",
   },
-  /* Nav */
-  navSection: {
+  searchSection: { padding: "16px 14px 8px" },
+  searchBar: {
     display: "flex",
-    padding: "8px",
-    gap: "2px",
-    borderBottom: "1px solid var(--border-color)",
+    alignItems: "center",
+    gap: "10px",
+    padding: "8px 14px",
+    borderRadius: "var(--r-lg)",
+    background: "var(--surface)",
+    border: "1px solid var(--border)",
   },
-  navItem: {
+  searchInput: {
+    flex: 1,
+    border: "none",
+    background: "transparent",
+    color: "var(--text-primary)",
+    fontSize: "13px",
+    fontFamily: "var(--font-body)",
+    outline: "none",
+  },
+  tabs: {
+    display: "flex",
+    padding: "0 14px",
+    gap: "4px",
+    borderBottom: "1px solid var(--border)",
+  },
+  tab: {
     flex: 1,
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
-    gap: "3px",
-    padding: "8px 4px",
-    borderRadius: "var(--radius-sm)",
+    justifyContent: "center",
+    gap: "6px",
+    padding: "10px",
     border: "none",
     background: "transparent",
     color: "var(--text-muted)",
+    fontSize: "13px",
+    fontFamily: "var(--font-body)",
+    fontWeight: 500,
     cursor: "pointer",
-    transition: "all var(--transition-fast)",
+    borderBottom: "2px solid transparent",
+    transition: "all var(--dur-normal) var(--ease-smooth)",
   },
-  navItemActive: {
-    background: "rgba(0, 229, 255, 0.06)",
-    color: "var(--accent-cyan)",
+  tabActive: {
+    color: "var(--accent)",
+    borderBottomColor: "var(--accent)",
   },
-  navIcon: { fontSize: "16px" },
-  navLabel: { fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "0.08em", textTransform: "uppercase" },
-  /* Content */
   content: { flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" },
-  sectionHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "12px 16px 6px",
+  list: { flex: 1, padding: "6px 8px" },
+  skeleton: {
+    height: "52px",
+    margin: "4px 6px",
+    borderRadius: "var(--r-md)",
+    background: "linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%)",
+    backgroundSize: "200% 100%",
+    animation: "shimmer 1.5s infinite",
   },
-  sectionHeaderText: { fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--text-muted)", letterSpacing: "0.15em" },
-  sectionCount: { fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--accent-cyan)", background: "rgba(0,229,255,0.08)", padding: "2px 8px", borderRadius: "var(--radius-full)" },
-  userList: { flex: 1, padding: "4px 8px" },
-  skeleton: { height: "52px", margin: "4px 0", borderRadius: "var(--radius-md)", background: "linear-gradient(90deg, rgba(0,229,255,0.02) 25%, rgba(0,229,255,0.05) 50%, rgba(0,229,255,0.02) 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" },
-  userItem: {
+  contactItem: {
     width: "100%",
     display: "flex",
     alignItems: "center",
     gap: "12px",
     padding: "10px 12px",
-    borderRadius: "var(--radius-md)",
+    borderRadius: "var(--r-md)",
     border: "1px solid transparent",
     background: "transparent",
     cursor: "pointer",
-    transition: "all var(--transition-fast)",
+    transition: "all var(--dur-normal) var(--ease-smooth)",
     textAlign: "left",
     color: "inherit",
+    position: "relative",
   },
-  userItemActive: {
-    background: "rgba(0, 229, 255, 0.06)",
-    border: "1px solid rgba(0, 229, 255, 0.12)",
+  contactActive: {
+    background: "var(--accent-dim)",
+    borderColor: "rgba(108,99,255,0.2)",
   },
-  avatarContainer: { position: "relative", flexShrink: 0 },
-  avatar: { width: "38px", height: "38px", borderRadius: "var(--radius-md)", objectFit: "cover", border: "1px solid var(--border-color)" },
-  statusDot: { position: "absolute", bottom: "1px", right: "1px", width: "10px", height: "10px", borderRadius: "50%", border: "2px solid var(--bg-secondary)" },
-  userInfo: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 },
-  userName: { fontFamily: "var(--font-body)", fontSize: "13px", fontWeight: "600", color: "var(--text-primary)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" },
-  userStatus: { fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" },
-  /* Groups */
-  createGroupBtn: {
-    width: "24px",
+  activeBar: {
+    position: "absolute",
+    left: 0,
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: "3px",
     height: "24px",
-    borderRadius: "var(--radius-sm)",
-    border: "1px solid rgba(0,229,255,0.2)",
-    background: "rgba(0,229,255,0.06)",
-    color: "var(--accent-cyan)",
-    fontSize: "14px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: "0 2px 2px 0",
+    background: "var(--accent)",
   },
-  createGroupForm: {
-    padding: "8px 12px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-    borderBottom: "1px solid var(--border-color)",
-    marginBottom: "4px",
-  },
-  createGroupInput: {
-    width: "100%",
-    padding: "8px 12px",
-    borderRadius: "var(--radius-sm)",
-    border: "1px solid var(--border-color)",
-    background: "rgba(0,229,255,0.03)",
+  contactInfo: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 },
+  contactName: {
+    fontSize: "13px",
+    fontWeight: 500,
     color: "var(--text-primary)",
-    fontSize: "12px",
-    fontFamily: "var(--font-body)",
-    fontWeight: "500",
-    outline: "none",
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
   },
-  memberSelectLabel: {
-    fontFamily: "var(--font-mono)",
-    fontSize: "8px",
+  contactStatus: {
+    fontSize: "11px",
     color: "var(--text-muted)",
-    letterSpacing: "0.15em",
   },
-  memberList: {
-    maxHeight: "120px",
-    overflowY: "auto",
-    display: "flex",
-    flexDirection: "column",
-    gap: "2px",
-  },
-  memberItem: {
-    width: "100%",
+  groupHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "6px 10px",
-    borderRadius: "var(--radius-sm)",
-    border: "1px solid transparent",
-    background: "transparent",
-    color: "var(--text-secondary)",
-    fontSize: "12px",
-    fontFamily: "var(--font-body)",
-    fontWeight: "500",
-    cursor: "pointer",
-    textAlign: "left",
+    padding: "12px 16px 4px",
   },
-  memberItemSelected: {
-    background: "rgba(0,229,255,0.06)",
-    border: "1px solid rgba(0,229,255,0.12)",
-    color: "var(--accent-cyan)",
+  sectionLabel: {
+    fontFamily: "var(--font-mono)",
+    fontSize: "11px",
+    color: "var(--text-muted)",
+    letterSpacing: "0.03em",
   },
-  checkMark: {
-    color: "var(--accent-cyan)",
-    fontSize: "12px",
-    fontWeight: "700",
-  },
-  createBtn: {
-    padding: "8px",
-    borderRadius: "var(--radius-sm)",
-    border: "1px solid rgba(0,229,255,0.2)",
-    background: "rgba(0,229,255,0.08)",
-    color: "var(--accent-cyan)",
-    fontFamily: "var(--font-heading)",
-    fontSize: "10px",
-    fontWeight: "700",
-    letterSpacing: "0.15em",
-    cursor: "pointer",
-  },
-  groupAvatarContainer: {
-    width: "38px",
-    height: "38px",
-    borderRadius: "var(--radius-md)",
-    background: "rgba(124,77,255,0.08)",
-    border: "1px solid rgba(124,77,255,0.15)",
+  addBtn: {
+    width: "28px",
+    height: "28px",
+    borderRadius: "var(--r-sm)",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
+    color: "var(--accent)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "var(--accent-purple-light)",
-    fontSize: "18px",
-    flexShrink: 0,
+    cursor: "pointer",
   },
-  groupIcon: {},
+  createForm: {
+    padding: "8px 14px 12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    borderBottom: "1px solid var(--border)",
+  },
+  createInput: {
+    width: "100%",
+    padding: "8px 12px",
+    borderRadius: "var(--r-sm)",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
+    color: "var(--text-primary)",
+    fontSize: "13px",
+    fontFamily: "var(--font-body)",
+    outline: "none",
+  },
+  memberPicker: {
+    maxHeight: "100px",
+    overflowY: "auto",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "4px",
+  },
+  memberChip: {
+    padding: "4px 10px",
+    borderRadius: "var(--r-full)",
+    border: "1px solid var(--border)",
+    background: "transparent",
+    color: "var(--text-secondary)",
+    fontSize: "11px",
+    fontFamily: "var(--font-body)",
+    cursor: "pointer",
+  },
+  memberChipActive: {
+    background: "var(--accent-dim)",
+    borderColor: "rgba(108,99,255,0.3)",
+    color: "var(--accent)",
+  },
+  createBtn: {
+    padding: "8px 16px",
+    borderRadius: "var(--r-sm)",
+    border: "none",
+    background: "linear-gradient(135deg, var(--accent), var(--cyan))",
+    color: "#fff",
+    fontFamily: "var(--font-body)",
+    fontSize: "12px",
+    fontWeight: 500,
+    cursor: "pointer",
+  },
   emptyText: {
     textAlign: "center",
     color: "var(--text-muted)",
-    fontSize: "12px",
-    fontFamily: "var(--font-body)",
-    fontWeight: "500",
-    padding: "20px",
-  },
-  /* Placeholder */
-  placeholderSection: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", padding: "32px" },
-  placeholderIcon: { fontSize: "36px", color: "var(--text-muted)", opacity: 0.4 },
-  placeholderText: { fontFamily: "var(--font-heading)", fontSize: "12px", color: "var(--text-muted)", letterSpacing: "0.15em" },
-  placeholderSubtext: { fontSize: "11px", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontWeight: "500", opacity: 0.6 },
-  /* Sync */
-  syncSection: {
-    padding: "16px",
-    borderTop: "1px solid var(--border-color)",
-  },
-  syncHeader: { display: "flex", justifyContent: "space-between", marginBottom: "8px" },
-  syncLabel: { fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--text-muted)", letterSpacing: "0.15em" },
-  syncValue: { fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--accent-cyan)", letterSpacing: "0.1em" },
-  syncBar: { height: "4px", borderRadius: "2px", background: "var(--bg-panel)", marginBottom: "12px" },
-  syncProgress: { height: "100%", width: "98.4%", borderRadius: "2px", background: "linear-gradient(90deg, var(--accent-cyan) 0%, var(--accent-purple) 100%)" },
-  syncButton: {
-    width: "100%",
-    padding: "10px",
-    borderRadius: "var(--radius-md)",
-    border: "1px solid rgba(0,229,255,0.2)",
-    background: "linear-gradient(135deg, rgba(0,229,255,0.08) 0%, rgba(124,77,255,0.08) 100%)",
-    fontFamily: "var(--font-heading)",
-    fontSize: "10px",
-    fontWeight: "700",
-    color: "var(--accent-cyan)",
-    letterSpacing: "0.15em",
-    cursor: "pointer",
+    fontSize: "13px",
+    padding: "24px",
   },
 };
 

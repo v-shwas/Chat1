@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, lazy } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import { Route, Routes, BrowserRouter as Router, Navigate } from "react-router-dom";
 import SignUp from "./pages/SignUp";
@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import useAuthStore from "./store/useAuthStore";
 import useSocketStore from "./store/useSocketStore";
 import { Toaster } from "react-hot-toast";
+import ParticleFieldLazy from "./components/3d/ParticleFieldLazy";
 
 const ProtectedRoute = ({ children }) => {
   const { authUser } = useAuthStore();
@@ -37,6 +38,9 @@ const App = () => {
 
   return (
     <>
+      {/* Layer 0: 3D particle background */}
+      <ParticleFieldLazy />
+
       <Router>
         <Routes>
           <Route
@@ -78,15 +82,15 @@ const App = () => {
         toastOptions={{
           duration: 3000,
           style: {
-            background: "var(--bg-tertiary)",
+            background: "rgba(255,255,255,0.06)",
+            backdropFilter: "blur(20px)",
             color: "var(--text-primary)",
-            border: "1px solid var(--border-glow)",
-            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--glass-border)",
+            borderRadius: "var(--r-md)",
             fontSize: "13px",
-            fontFamily: "'Rajdhani', sans-serif",
-            fontWeight: "500",
-            boxShadow: "0 4px 20px rgba(0, 229, 255, 0.1)",
-            letterSpacing: "0.02em",
+            fontFamily: "var(--font-body)",
+            fontWeight: "400",
+            boxShadow: "var(--glass-shadow)",
           },
         }}
       />

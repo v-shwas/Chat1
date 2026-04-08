@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import useAuthStore from "../store/useAuthStore";
 import useChatStore from "../store/useChatStore";
 import useSocketStore from "../store/useSocketStore";
@@ -8,11 +8,13 @@ import Sidebar from "../components/Sidebar/Sidebar";
 import ChatArea from "../components/Chat/ChatArea";
 import GroupChatArea from "../components/Chat/GroupChatArea";
 import CallModal from "../components/Call/CallModal";
+import Avatar from "../components/ui/Avatar";
+import { MessageSquare, Settings, LogOut, Bell } from "lucide-react";
 
 const Dashboard = () => {
   const { authUser, logout } = useAuthStore();
   const { getUsers } = useChatStore();
-  const { connectSocket, disconnectSocket, socket } = useSocketStore();
+  const { socket } = useSocketStore();
   const { selectedGroup, getMyGroups } = useGroupStore();
   const { setupCallListeners, removeCallListeners } = useCallStore();
 
@@ -22,14 +24,6 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (authUser?._id) {
-      connectSocket(authUser._id);
-    }
-    return () => disconnectSocket();
-  }, [authUser]);
-
-  // Setup call listeners when socket is ready
-  useEffect(() => {
     if (socket) {
       setupCallListeners(socket);
     }
@@ -38,78 +32,47 @@ const Dashboard = () => {
 
   return (
     <div style={styles.wrapper}>
-      {/* Call Modal (renders globally) */}
       <CallModal />
 
-      {/* ── Navbar ── */}
-      <header style={styles.navbar}>
-        <div style={styles.navLeft}>
+      {/* ── Slim icon rail ── */}
+      <nav style={styles.rail}>
+        <div style={styles.railTop}>
           <div style={styles.logoMark}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-            </svg>
-          </div>
-          <span style={styles.logoText}>NEURAL CORE</span>
-          <div style={styles.signalBadge}>
-            <span style={styles.signalDot} />
-            SIGNAL STABLE
+            <MessageSquare size={20} />
           </div>
         </div>
 
-        <div style={styles.navCenter}>
-          <div style={styles.searchBar}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <span style={styles.searchPlaceholder}>Search neural nodes...</span>
-            <span style={styles.searchShortcut}>⌘ K</span>
-          </div>
+        <div style={styles.railCenter}>
+          <button style={styles.railBtn} title="Notifications">
+            <Bell size={18} />
+          </button>
+          <button style={styles.railBtn} title="Settings">
+            <Settings size={18} />
+          </button>
         </div>
 
-        <div style={styles.navRight}>
-          <button style={styles.navIconBtn} title="Notifications">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-          </button>
-          <button style={styles.navIconBtn} title="Settings">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-          </button>
-
-          <div
-            style={styles.userAvatar}
-            onClick={logout}
-            title="Logout"
-          >
-            <img
-              src={authUser?.profilePic || `https://api.dicebear.com/7.x/initials/svg?seed=${authUser?.fullname}`}
-              alt="avatar"
-              style={styles.avatarImg}
+        <div style={styles.railBottom}>
+          <div onClick={logout} title="Logout" style={{ cursor: "pointer" }}>
+            <Avatar
+              src={authUser?.profilePic}
+              name={authUser?.fullname || "User"}
+              size="sm"
+              online
             />
           </div>
+          <button onClick={logout} style={styles.logoutBtn} title="Logout">
+            <LogOut size={16} />
+          </button>
         </div>
-      </header>
+      </nav>
+
+      {/* ── Sidebar ── */}
+      <Sidebar />
 
       {/* ── Main Content ── */}
-      <div style={styles.main}>
-        <Sidebar />
+      <main style={styles.main}>
         {selectedGroup ? <GroupChatArea /> : <ChatArea />}
-      </div>
-
-      {/* ── Footer ── */}
-      <footer style={styles.footer}>
-        <span style={styles.footerText}>CORE PROTOCOL V.9.4.2</span>
-        <span style={styles.footerDot}>•</span>
-        <span style={styles.footerText}>NEURAL LATTICE ENCRYPTED</span>
-        <span style={styles.footerDot}>•</span>
-        <span style={styles.footerText}>SESSION: {authUser?._id?.slice(-8)?.toUpperCase() || "—"}</span>
-      </footer>
+      </main>
     </div>
   );
 };
@@ -118,106 +81,86 @@ const styles = {
   wrapper: {
     height: "100vh",
     display: "flex",
-    flexDirection: "column",
-    background: "var(--bg-primary)",
     overflow: "hidden",
+    position: "relative",
+    zIndex: "var(--z-base)",
   },
-  /* Navbar */
-  navbar: {
-    height: "56px",
-    minHeight: "56px",
+  rail: {
+    width: "68px",
+    minWidth: "68px",
+    height: "100%",
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
-    justifyContent: "space-between",
-    padding: "0 20px",
-    background: "var(--bg-secondary)",
-    borderBottom: "1px solid var(--border-color)",
-    zIndex: 10,
+    padding: "16px 0",
+    background: "rgba(3, 4, 10, 0.8)",
+    backdropFilter: "blur(24px)",
+    WebkitBackdropFilter: "blur(24px)",
+    borderRight: "1px solid var(--border)",
+    zIndex: "var(--z-sidebar)",
   },
-  navLeft: { display: "flex", alignItems: "center", gap: "12px" },
+  railTop: {
+    marginBottom: "auto",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "12px",
+  },
   logoMark: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "var(--radius-md)",
-    background: "linear-gradient(135deg, rgba(0,229,255,0.1) 0%, rgba(124,77,255,0.1) 100%)",
-    border: "1px solid rgba(0,229,255,0.15)",
+    width: "44px",
+    height: "44px",
+    borderRadius: "var(--r-md)",
+    background: "var(--accent-dim)",
+    border: "1px solid rgba(108,99,255,0.3)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "var(--accent-cyan)",
-    animation: "pulse-cyan 3s infinite",
+    color: "var(--accent)",
+    marginBottom: "8px",
   },
-  logoText: {
-    fontFamily: "var(--font-heading)",
-    fontSize: "14px",
-    fontWeight: "800",
-    color: "var(--accent-cyan)",
-    letterSpacing: "0.2em",
-  },
-  signalBadge: {
+  railCenter: {
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
-    gap: "6px",
-    padding: "4px 12px",
-    borderRadius: "var(--radius-full)",
-    background: "rgba(0,230,118,0.06)",
-    border: "1px solid rgba(0,230,118,0.12)",
-    fontFamily: "var(--font-mono)",
-    fontSize: "9px",
-    color: "var(--success)",
-    letterSpacing: "0.1em",
+    gap: "4px",
   },
-  signalDot: {
-    width: "5px",
-    height: "5px",
-    borderRadius: "50%",
-    background: "var(--success)",
-    animation: "pulse-dot 2s infinite",
-  },
-  navCenter: { flex: 1, maxWidth: "420px", margin: "0 24px" },
-  searchBar: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "8px 16px",
-    borderRadius: "var(--radius-lg)",
-    background: "var(--bg-panel)",
-    border: "1px solid var(--border-color)",
-    color: "var(--text-muted)",
-  },
-  searchPlaceholder: { flex: 1, fontFamily: "var(--font-body)", fontWeight: "500", fontSize: "13px", opacity: 0.5 },
-  searchShortcut: { fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--text-muted)", background: "rgba(0,229,255,0.06)", padding: "2px 6px", borderRadius: "var(--radius-sm)", letterSpacing: "0.05em" },
-  navRight: { display: "flex", alignItems: "center", gap: "8px" },
-  navIconBtn: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "var(--radius-md)",
-    border: "1px solid var(--border-color)",
+  railBtn: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "var(--r-md)",
+    border: "none",
     background: "transparent",
-    color: "var(--text-secondary)",
+    color: "var(--text-muted)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    transition: "all var(--transition-fast)",
+    transition: "all var(--dur-normal) var(--ease-smooth)",
   },
-  userAvatar: { width: "34px", height: "34px", borderRadius: "var(--radius-md)", cursor: "pointer", overflow: "hidden", border: "1px solid var(--border-color)" },
-  avatarImg: { width: "100%", height: "100%", objectFit: "cover" },
-  /* Main */
-  main: { flex: 1, display: "flex", overflow: "hidden" },
-  /* Footer */
-  footer: {
-    height: "28px",
-    minHeight: "28px",
+  railBottom: {
+    marginTop: "auto",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "12px",
+  },
+  logoutBtn: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "var(--r-md)",
+    border: "none",
+    background: "transparent",
+    color: "var(--text-muted)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "12px",
-    background: "var(--bg-secondary)",
-    borderTop: "1px solid var(--border-color)",
+    cursor: "pointer",
   },
-  footerText: { fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--text-muted)", letterSpacing: "0.15em" },
-  footerDot: { fontSize: "6px", color: "var(--text-muted)", opacity: 0.4 },
+  main: {
+    flex: 1,
+    overflow: "hidden",
+    display: "flex",
+  },
 };
 
 export default Dashboard;

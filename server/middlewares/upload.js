@@ -16,20 +16,19 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  // Allow images, audio, and common file types
-  const allowedTypes = [
-    "image/jpeg", "image/png", "image/gif", "image/webp",
-    "audio/webm", "audio/mp3", "audio/mpeg", "audio/ogg", "audio/wav",
-    "application/pdf", "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/zip", "text/plain",
-  ];
+const allowedTypes = [
+  "image/jpeg", "image/png", "image/gif", "image/webp",
+  "audio/webm", "audio/mp3", "audio/mpeg", "audio/ogg", "audio/wav",
+  "application/pdf", "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/zip", "text/plain",
+];
 
+const fileFilter = (req, file, cb) => {
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(null, true); // Accept all — filter on client
+    cb(new Error(`File type ${file.mimetype} not allowed`), false);
   }
 };
 

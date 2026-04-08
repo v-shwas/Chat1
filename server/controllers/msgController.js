@@ -4,9 +4,13 @@ import { getReceiverSocketId, io } from "../socket/socket.js";
 
 const sendMessage = async (req, res) => {
   try {
-    const { message, messageType, replyTo } = req.body;
+    const { message, messageType, replyTo, image, fileName, fileSize, fileMimeType } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
+
+    if (!message && !image) {
+      return res.status(400).json({ error: "Message content or file required" });
+    }
 
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
@@ -23,12 +27,14 @@ const sendMessage = async (req, res) => {
       receiverId,
       message: message || "",
       messageType: messageType || "text",
+      image: image || "",
+      fileName: fileName || "",
+      fileSize: fileSize || 0,
+      fileMimeType: fileMimeType || "",
       replyTo: replyTo || undefined,
     });
 
-    if (newMsg) {
-      conversation.messages.push(newMsg._id);
-    }
+    conversation.messages.push(newMsg._id);
 
     await Promise.all([conversation.save(), newMsg.save()]);
 
@@ -46,7 +52,7 @@ const sendMessage = async (req, res) => {
 
     res.status(201).json(populatedMsg);
   } catch (error) {
-    console.log("Error in sendMessage:", error.message);
+    console.error("Error in sendMessage:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -72,7 +78,7 @@ const getMessages = async (req, res) => {
 
     res.status(200).json(conversation.messages);
   } catch (error) {
-    console.log("Error in getMessages controller:", error.message);
+    console.error("Error in getMessages controller:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -96,7 +102,7 @@ const markAsRead = async (req, res) => {
 
     res.status(200).json({ success: true });
   } catch (error) {
-    console.log("Error in markAsRead:", error.message);
+    console.error("Error in markAsRead:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -107,6 +113,10 @@ const reactToMessage = async (req, res) => {
     const { id: messageId } = req.params;
     const { emoji } = req.body;
     const userId = req.user._id;
+
+    if (!emoji && emoji !== "") {
+      return res.status(400).json({ error: "Emoji is required" });
+    }
 
     const message = await Message.findById(messageId);
     if (!message) return res.status(404).json({ error: "Message not found" });
@@ -128,12 +138,14 @@ const reactToMessage = async (req, res) => {
       ? message.receiverId
       : message.senderId;
 
-    const targetSocketId = getReceiverSocketId(targetId);
-    if (targetSocketId) {
-      io.to(targetSocketId).emit("messageReaction", {
-        messageId,
-        reactions: message.reactions,
-      });
+    if (targetId) {
+      const targetSocketId = getReceiverSocketId(targetId);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("messageReaction", {
+          messageId,
+          reactions: message.reactions,
+        });
+      }
     }
 
     // For group messages
@@ -146,7 +158,7 @@ const reactToMessage = async (req, res) => {
 
     res.status(200).json(message);
   } catch (error) {
-    console.log("Error in reactToMessage:", error.message);
+    console.error("Error in reactToMessage:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -167,6 +179,7 @@ const deleteMessage = async (req, res) => {
     message.isDeleted = true;
     message.message = "";
     message.image = "";
+    message.fileName = "";
     await message.save();
 
     // Notify via socket
@@ -182,7 +195,7 @@ const deleteMessage = async (req, res) => {
 
     res.status(200).json({ success: true });
   } catch (error) {
-    console.log("Error in deleteMessage:", error.message);
+    console.error("Error in deleteMessage:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
