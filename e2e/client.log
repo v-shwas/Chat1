@@ -1,0 +1,14 @@
+
+  [32m[1mVITE[22m v5.1.4[39m  [2mready in [0m[1m1412[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.0.102:[1m5173[22m/[39m
+[2m1:41:25 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.jsx, /src/components/Call/CallModal.jsx, /src/components/Chat/ChatArea.jsx[22m
+[2m9:10:48 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.jsx, /src/components/Call/CallModal.jsx, /src/components/Chat/ChatArea.jsx[22m
+[2m9:10:57 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.jsx, /src/components/Call/CallModal.jsx, /src/components/Chat/ChatArea.jsx[22m
+[2m9:11:04 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.jsx, /src/components/Call/CallModal.jsx, /src/components/Chat/ChatArea.jsx[22m
+[2m9:14:53 pm[22m [36m[1m[vite][22m[39m [32mvite.config.js changed, restarting server...[39m
+[2m9:14:53 pm[22m [36m[1m[vite][22m[39m server restarted.
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttps://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttps://192.168.0.107:[1m5173[22m/[39m

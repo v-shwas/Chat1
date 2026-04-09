@@ -4,7 +4,17 @@
       "Bash(find /f/MERN/PROJECTS/chatproject2/server/routes -type f -name \"*.js\" -exec wc -l {} +)",
       "Bash(find /f/MERN/PROJECTS/chatproject2 -name .env* -type f)",
       "Bash(npx vite:*)",
-      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx vite build)"
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx vite build)",
+      "Bash(npx playwright:*)",
+      "Bash(node -e \"const wrtc = require\\('@roamhq/wrtc'\\); const pc = new wrtc.RTCPeerConnection\\(\\); console.log\\('wrtc OK, signalingState:', pc.signalingState\\); pc.close\\(\\);\")",
+      "Bash(npx jest:*)",
+      "Bash(SKIP_SERVERS=1 npx playwright test e2e/calls.spec.js --headed)",
+      "Bash(node index.js)",
+      "Bash(curl -s http://localhost:3000/api/auth/login -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:5173 -o /dev/null -w \"%{http_code}\")",
+      "Bash(SKIP_SERVERS=1 npx playwright test e2e/calls.spec.js --headed --project=chromium-fake-media)",
+      "Bash(npx kill-port:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

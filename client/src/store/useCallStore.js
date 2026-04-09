@@ -6,6 +6,22 @@ const ICE_SERVERS = {
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
     { urls: "stun:stun2.l.google.com:19302" },
+    // Free TURN servers for NAT traversal across devices/networks
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443?transport=tcp",
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    },
   ],
 };
 
@@ -144,6 +160,10 @@ const useCallStore = create((set, get) => ({
       await pc.setRemoteDescription(new RTCSessionDescription(incomingSignal));
       console.log("[CALL] Set remote description (offer)");
 
+      // Store peerConnection in state NOW so the iceCandidate listener
+      // can add candidates directly to it instead of buffering (and losing) them
+      set({ peerConnection: pc });
+
       // Flush buffered ICE candidates now that PC is ready
       const buffered = get().iceCandidateBuffer;
       console.log("[CALL] Flushing", buffered.length, "buffered ICE candidates");
@@ -154,6 +174,7 @@ const useCallStore = create((set, get) => ({
           console.warn("[CALL] Error adding buffered ICE candidate:", e);
         }
       }
+      set({ iceCandidateBuffer: [] });
 
       // Create and send answer
       const answer = await pc.createAnswer();
@@ -174,16 +195,18 @@ const useCallStore = create((set, get) => ({
         callStatus: "inCall",
         localStream: stream,
         remoteStream,
-        peerConnection: pc,
         callTimer: timer,
-        iceCandidateBuffer: [],
       });
 
       console.log("[CALL] Answer complete, status: inCall");
     } catch (err) {
       console.error("[CALL] Error answering call:", err);
-      // Don't emit endCall here — just clean up locally
-      // The other side will detect the disconnect via ICE state
+      // Notify caller that the answer failed so they don't hang
+      const socket = useSocketStore.getState().socket;
+      const cId = get().callerId;
+      if (cId && socket) {
+        socket.emit("rejectCall", { to: cId });
+      }
       const { localStream, peerConnection } = get();
       if (localStream) localStream.getTracks().forEach((t) => t.stop());
       if (peerConnection) peerConnection.close();
@@ -345,6 +368,11 @@ const useCallStore = create((set, get) => ({
       console.log("[CALL] Call rejected by remote");
       get().cleanup();
     });
+
+    socket.on("callFailed", ({ reason }) => {
+      console.log("[CALL] Call failed:", reason);
+      get().cleanup();
+    });
   },
 
   removeCallListeners: (socket) => {
@@ -354,6 +382,7 @@ const useCallStore = create((set, get) => ({
     socket.off("iceCandidate");
     socket.off("callEnded");
     socket.off("callRejected");
+    socket.off("callFailed");
   },
 }));
 
