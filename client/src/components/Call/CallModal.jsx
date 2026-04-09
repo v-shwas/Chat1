@@ -18,18 +18,23 @@ const CallModal = () => {
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const remoteAudioRef = useRef(null);
 
+  // Include callStatus so effects re-run once the elements are mounted
   useEffect(() => {
     if (localVideoRef.current && localStream) {
       localVideoRef.current.srcObject = localStream;
     }
-  }, [localStream]);
+  }, [localStream, callStatus]);
 
   useEffect(() => {
     if (remoteVideoRef.current && remoteStream) {
       remoteVideoRef.current.srcObject = remoteStream;
     }
-  }, [remoteStream]);
+    if (remoteAudioRef.current && remoteStream) {
+      remoteAudioRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream, callStatus]);
 
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60).toString().padStart(2, "0");
@@ -42,9 +47,15 @@ const CallModal = () => {
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        {/* Video elements (hidden for audio-only calls) */}
-        {callType === "video" && callStatus === "inCall" && (
-          <div style={styles.videoContainer}>
+        {/* Hidden audio element for remote audio (always needed when in call) */}
+        <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: "none" }} />
+
+        {/* Video elements — always mounted when callType is video so refs are ready */}
+        {callType === "video" && (
+          <div style={{
+            ...styles.videoContainer,
+            display: callStatus === "inCall" ? "block" : "none",
+          }}>
             <video
               ref={remoteVideoRef}
               autoPlay
