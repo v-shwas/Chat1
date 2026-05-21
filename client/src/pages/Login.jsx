@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
 import GlassButton from "../components/ui/GlassButton";
+import { Lock, ShieldCheck, User } from "lucide-react";
 
 const Login = () => {
   const [userInfo, setUserInfo] = useState("");
@@ -17,43 +18,44 @@ const Login = () => {
   };
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.card} className="animate-fade-in-up">
-        {/* Logo */}
-        <div style={styles.logoSection}>
-          <div style={styles.logoIcon}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-          </div>
-          <h1 style={styles.logoText}>ChatFlow</h1>
+    <main style={styles.wrapper}>
+      <section style={styles.card} className="animate-fade-in-up">
+        <div style={styles.logoIcon}>
+          <ShieldCheck size={30} />
         </div>
-        <p style={styles.subtitle}>Sign in to your account</p>
+        <h1 style={styles.logoText}>Aurum</h1>
+        <p style={styles.subtitle}>Private messaging with a calmer surface.</p>
 
         <form onSubmit={submitHandler} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Email or Username</label>
-            <input
-              type="text"
-              value={userInfo}
-              onChange={(e) => setUserInfo(e.target.value)}
-              placeholder="Enter your email or username"
-              style={styles.input}
-              required
-            />
-          </div>
+          <label style={styles.inputGroup}>
+            <span style={styles.label}>Identity</span>
+            <div style={styles.inputShell}>
+              <User size={16} style={styles.inputIcon} />
+              <input
+                type="text"
+                value={userInfo}
+                onChange={(e) => setUserInfo(e.target.value)}
+                placeholder="Email or username"
+                style={styles.input}
+                required
+              />
+            </div>
+          </label>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              style={styles.input}
-              required
-            />
-          </div>
+          <label style={styles.inputGroup}>
+            <span style={styles.label}>Passphrase</span>
+            <div style={styles.inputShell}>
+              <Lock size={16} style={styles.inputIcon} />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                style={styles.input}
+                required
+              />
+            </div>
+          </label>
 
           <GlassButton
             variant="accent"
@@ -61,23 +63,18 @@ const Login = () => {
             loading={isLoggingIn}
             disabled={isLoggingIn}
             onClick={submitHandler}
-            style={{ width: "100%", marginTop: 4 }}
+            style={{ width: "100%", marginTop: 6, borderRadius: "var(--r-full)" }}
           >
-            Sign In
+            Open Aurum
           </GlassButton>
         </form>
 
-        <div style={styles.divider}>
-          <span style={styles.dividerLine} />
-          <span style={styles.dividerText}>or</span>
-          <span style={styles.dividerLine} />
+        <div style={styles.switchRow}>
+          <span style={styles.switchText}>New secure workspace?</span>
+          <Link to="/signup" style={styles.switchLink}>Create account</Link>
         </div>
-
-        <Link to="/signup" style={styles.switchLink}>
-          Don't have an account? <span style={styles.switchAccent}>Sign Up</span>
-        </Link>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
@@ -90,106 +87,84 @@ const styles = {
     justifyContent: "center",
     position: "relative",
     zIndex: 10,
+    padding: "24px",
   },
   card: {
     width: "100%",
-    maxWidth: "420px",
-    padding: "40px",
-    borderRadius: "var(--r-xl)",
-    background: "rgba(255,255,255,0.04)",
-    backdropFilter: "blur(20px) saturate(180%)",
-    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    border: "1px solid var(--glass-border)",
-    boxShadow: "var(--glass-shadow)",
-  },
-  logoSection: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "12px",
-    marginBottom: "8px",
+    maxWidth: "430px",
+    padding: "38px",
+    borderRadius: "var(--r-2xl)",
+    background: "rgba(28,27,26,0.84)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    border: "1px solid rgba(153,144,124,0.14)",
+    boxShadow: "0 24px 70px rgba(0,0,0,0.46)",
+    textAlign: "center",
   },
   logoIcon: {
-    width: "48px",
-    height: "48px",
-    borderRadius: "var(--r-md)",
-    background: "var(--accent-dim)",
-    border: "1px solid rgba(108,99,255,0.3)",
+    width: "58px",
+    height: "58px",
+    borderRadius: "var(--r-xl)",
+    background: "linear-gradient(135deg, var(--accent-soft), var(--accent-strong))",
+    color: "#241a00",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "var(--accent)",
-    animation: "glow-pulse 3s infinite",
+    margin: "0 auto 16px",
+    boxShadow: "0 16px 36px rgba(212,175,55,0.20)",
   },
   logoText: {
     fontFamily: "var(--font-display)",
-    fontSize: "28px",
-    fontWeight: "800",
+    fontSize: "34px",
+    lineHeight: 1,
+    fontWeight: 800,
+    letterSpacing: "-0.02em",
     color: "var(--text-primary)",
   },
   subtitle: {
-    textAlign: "center",
-    color: "var(--text-secondary)",
+    color: "var(--text-muted)",
     fontSize: "14px",
-    fontFamily: "var(--font-body)",
-    marginBottom: "28px",
+    marginTop: "10px",
+    marginBottom: "30px",
   },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
+  form: { display: "flex", flexDirection: "column", gap: "16px", textAlign: "left" },
+  inputGroup: { display: "flex", flexDirection: "column", gap: "7px" },
   label: {
     fontFamily: "var(--font-mono)",
     fontSize: "11px",
     color: "var(--text-muted)",
-    letterSpacing: "0.05em",
+    letterSpacing: "0.10em",
+    textTransform: "uppercase",
   },
+  inputShell: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "0 14px",
+    borderRadius: "var(--r-xl)",
+    border: "1px solid var(--border)",
+    background: "rgba(53,53,52,0.32)",
+  },
+  inputIcon: { color: "var(--text-muted)", flexShrink: 0 },
   input: {
     width: "100%",
-    padding: "12px 16px",
-    borderRadius: "var(--r-md)",
-    border: "1px solid var(--border)",
-    background: "var(--surface)",
+    height: "46px",
+    border: "none",
+    background: "transparent",
     color: "var(--text-primary)",
     fontSize: "14px",
     fontFamily: "var(--font-body)",
     outline: "none",
-    transition: "border-color var(--dur-normal) var(--ease-smooth)",
   },
-  divider: {
+  switchRow: {
     display: "flex",
-    alignItems: "center",
-    gap: "16px",
-    margin: "24px 0",
-  },
-  dividerLine: {
-    flex: 1,
-    height: "1px",
-    background: "var(--border)",
-  },
-  dividerText: {
-    fontSize: "12px",
-    fontFamily: "var(--font-mono)",
-    color: "var(--text-muted)",
-  },
-  switchLink: {
-    display: "block",
-    textAlign: "center",
-    color: "var(--text-secondary)",
+    justifyContent: "center",
+    gap: "8px",
+    marginTop: "24px",
     fontSize: "14px",
-    fontFamily: "var(--font-body)",
-    textDecoration: "none",
   },
-  switchAccent: {
-    color: "var(--accent)",
-    fontWeight: "600",
-  },
+  switchText: { color: "var(--text-muted)" },
+  switchLink: { color: "var(--accent)", textDecoration: "none", fontWeight: 700 },
 };
 
 export default Login;

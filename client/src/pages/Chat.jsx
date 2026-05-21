@@ -1,7 +1,5 @@
-import React from "react";
-
 const Chat = () => {
-  return <div>Chat</div>;
+  return <div>Aurum chat</div>;
 };
 
 export default Chat;

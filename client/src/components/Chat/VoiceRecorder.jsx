@@ -107,8 +107,8 @@ const styles = {
   recordingIndicator: {
     flex: 1, display: "flex", alignItems: "center", gap: "8px",
     padding: "6px 12px", borderRadius: "var(--r-full)",
-    background: "rgba(239,68,68,0.06)",
-    border: "1px solid rgba(239,68,68,0.15)",
+    background: "rgba(215,107,98,0.08)",
+    border: "1px solid rgba(215,107,98,0.18)",
   },
   recordingDot: {
     width: "8px", height: "8px", borderRadius: "50%",
@@ -118,8 +118,8 @@ const styles = {
   sendBtn: {
     width: "36px", height: "36px", borderRadius: "50%",
     border: "none",
-    background: "linear-gradient(135deg, var(--accent), var(--cyan))",
-    color: "#fff", display: "flex",
+    background: "linear-gradient(135deg, var(--accent-soft), var(--accent-strong))",
+    color: "#241a00", display: "flex",
     alignItems: "center", justifyContent: "center",
     cursor: "pointer", flexShrink: 0,
   },

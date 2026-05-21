@@ -26,10 +26,10 @@ export default function Badge({ count, variant = "accent" }) {
         padding: "0 5px",
         borderRadius: "var(--r-full)",
         background: variant === "accent"
-          ? "linear-gradient(135deg, var(--accent), var(--cyan))"
+          ? "linear-gradient(135deg, var(--accent-soft), var(--accent-strong))"
           : "var(--glass-bg)",
         border: variant === "accent" ? "none" : "1px solid var(--glass-border)",
-        color: "#fff",
+        color: variant === "accent" ? "#241a00" : "var(--text-primary)",
         fontFamily: "var(--font-mono)",
         fontSize: 10,
         fontWeight: 500,

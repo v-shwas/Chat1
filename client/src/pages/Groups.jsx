@@ -1,7 +1,5 @@
-import React from "react";
-
 const Groups = () => {
-  return <div>Groups</div>;
+  return <div>Aurum rooms</div>;
 };
 
 export default Groups;

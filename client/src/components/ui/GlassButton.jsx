@@ -9,10 +9,10 @@ const variants = {
     color: "var(--text-primary)",
   },
   accent: {
-    background: "linear-gradient(135deg, var(--accent), var(--cyan))",
-    border: "1px solid rgba(108,99,255,0.4)",
-    color: "#fff",
-    boxShadow: "0 0 20px rgba(108,99,255,0.25)",
+    background: "linear-gradient(135deg, var(--accent-soft), var(--accent-strong))",
+    border: "1px solid rgba(255,224,136,0.28)",
+    color: "#241a00",
+    boxShadow: "0 12px 26px rgba(212,175,55,0.18)",
   },
   danger: {
     background: "rgba(239,68,68,0.2)",
@@ -57,7 +57,7 @@ export default function GlassButton({
         justifyContent: "center",
         gap: "8px",
         fontFamily: "var(--font-body)",
-        fontWeight: 500,
+        fontWeight: 700,
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.4 : 1,
         transition: "all var(--dur-normal) var(--ease-smooth)",

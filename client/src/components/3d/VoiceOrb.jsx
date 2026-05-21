@@ -19,13 +19,13 @@ function PulsingOrb({ isSpeaking }) {
   return (
     <Sphere ref={meshRef} args={[1, 64, 64]}>
       <MeshDistortMaterial
-        color="#6c63ff"
-        emissive="#6c63ff"
+        color="#d4af37"
+        emissive="#d4af37"
         emissiveIntensity={isSpeaking ? 0.6 : 0.3}
         distort={isSpeaking ? 0.4 : 0.15}
         speed={isSpeaking ? 4 : 1.5}
-        roughness={0.1}
-        metalness={0.8}
+        roughness={0.35}
+        metalness={0.72}
         transparent
         opacity={0.85}
       />
@@ -38,8 +38,8 @@ export default function VoiceOrb({ isSpeaking }) {
     <div style={{ width: 200, height: 200 }}>
       <Canvas camera={{ position: [0, 0, 3], fov: 45 }} gl={{ alpha: true }}>
         <ambientLight intensity={0.3} />
-        <pointLight position={[2, 2, 2]} intensity={1} color="#6c63ff" />
-        <pointLight position={[-2, -2, -2]} intensity={0.5} color="#00d4ff" />
+        <pointLight position={[2, 2, 2]} intensity={0.8} color="#d4af37" />
+        <pointLight position={[-2, -2, -2]} intensity={0.35} color="#b8c7bd" />
         <PulsingOrb isSpeaking={isSpeaking} />
       </Canvas>
     </div>

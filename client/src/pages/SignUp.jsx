@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
 import GlassButton from "../components/ui/GlassButton";
+import { AtSign, Lock, Mail, ShieldCheck, User } from "lucide-react";
 
 const SignUp = () => {
   const [fullname, setFullname] = useState("");
@@ -16,98 +17,88 @@ const SignUp = () => {
   const registerHandler = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) return;
-    const success = await signup({
-      fullname, username, email, password, confirmPassword, gender,
-    });
+    const success = await signup({ fullname, username, email, password, confirmPassword, gender });
     if (success) navigate("/dashboard");
   };
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.card} className="animate-fade-in-up">
-        {/* Logo */}
-        <div style={styles.logoSection}>
-          <div style={styles.logoIcon}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <line x1="19" y1="8" x2="19" y2="14" />
-              <line x1="22" y1="11" x2="16" y2="11" />
-            </svg>
-          </div>
-          <h1 style={styles.logoText}>ChatFlow</h1>
+    <main style={styles.wrapper}>
+      <section style={styles.card} className="animate-fade-in-up">
+        <div style={styles.logoIcon}>
+          <ShieldCheck size={28} />
         </div>
-        <p style={styles.subtitle}>Create your account</p>
+        <h1 style={styles.logoText}>Join Aurum</h1>
+        <p style={styles.subtitle}>Create a private identity for secure conversations.</p>
 
         <form onSubmit={registerHandler} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com" style={styles.input} required />
+          <Field icon={<Mail size={16} />} label="Email">
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={styles.input} required />
+          </Field>
+
+          <div style={styles.row}>
+            <Field icon={<User size={16} />} label="Full name">
+              <input type="text" value={fullname} onChange={(e) => setFullname(e.target.value)} placeholder="Your name" style={styles.input} required />
+            </Field>
+            <Field icon={<AtSign size={16} />} label="Username">
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="handle" style={styles.input} required />
+            </Field>
           </div>
 
           <div style={styles.row}>
-            <div style={{ ...styles.inputGroup, flex: 1 }}>
-              <label style={styles.label}>Full Name</label>
-              <input type="text" value={fullname} onChange={(e) => setFullname(e.target.value)}
-                placeholder="John Doe" style={styles.input} required />
-            </div>
-            <div style={{ ...styles.inputGroup, flex: 1 }}>
-              <label style={styles.label}>Username</label>
-              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-                placeholder="johndoe" style={styles.input} required />
-            </div>
-          </div>
-
-          <div style={styles.row}>
-            <div style={{ ...styles.inputGroup, flex: 1 }}>
-              <label style={styles.label}>Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min 6 characters" style={styles.input} required minLength={6} />
-            </div>
-            <div style={{ ...styles.inputGroup, flex: 1 }}>
-              <label style={styles.label}>Confirm</label>
-              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Re-enter" style={styles.input} required minLength={6} />
-            </div>
+            <Field icon={<Lock size={16} />} label="Password">
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimum 6" style={styles.input} required minLength={6} />
+            </Field>
+            <Field icon={<Lock size={16} />} label="Confirm">
+              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat" style={styles.input} required minLength={6} />
+            </Field>
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Gender</label>
+            <span style={styles.label}>Profile type</span>
             <div style={styles.genderRow}>
               {["male", "female"].map((g) => (
-                <button key={g} type="button" onClick={() => setGender(g)}
-                  style={{
-                    ...styles.genderBtn,
-                    ...(gender === g ? styles.genderActive : {}),
-                  }}>
-                  {g === "male" ? "Male" : "Female"}
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => setGender(g)}
+                  style={{ ...styles.genderBtn, ...(gender === g ? styles.genderActive : {}) }}
+                >
+                  {g === "male" ? "Classic" : "Refined"}
                 </button>
               ))}
             </div>
           </div>
 
-          <GlassButton variant="accent" size="lg" loading={isSigningUp}
+          <GlassButton
+            variant="accent"
+            size="lg"
+            loading={isSigningUp}
             disabled={isSigningUp || !gender}
             onClick={registerHandler}
-            style={{ width: "100%", marginTop: 4 }}>
-            Create Account
+            style={{ width: "100%", marginTop: 6, borderRadius: "var(--r-full)" }}
+          >
+            Create secure account
           </GlassButton>
         </form>
 
-        <div style={styles.divider}>
-          <span style={styles.dividerLine} />
-          <span style={styles.dividerText}>or</span>
-          <span style={styles.dividerLine} />
+        <div style={styles.switchRow}>
+          <span style={styles.switchText}>Already inside?</span>
+          <Link to="/login" style={styles.switchLink}>Sign in</Link>
         </div>
-
-        <Link to="/login" style={styles.switchLink}>
-          Already have an account? <span style={styles.switchAccent}>Sign In</span>
-        </Link>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
+
+const Field = ({ label, icon, children }) => (
+  <label style={styles.inputGroup}>
+    <span style={styles.label}>{label}</span>
+    <div style={styles.inputShell}>
+      <span style={styles.inputIcon}>{icon}</span>
+      {children}
+    </div>
+  </label>
+);
 
 const styles = {
   wrapper: {
@@ -118,95 +109,46 @@ const styles = {
     justifyContent: "center",
     position: "relative",
     zIndex: 10,
+    padding: "24px",
   },
   card: {
     width: "100%",
-    maxWidth: "480px",
-    padding: "36px 40px",
-    borderRadius: "var(--r-xl)",
-    background: "rgba(255,255,255,0.04)",
-    backdropFilter: "blur(20px) saturate(180%)",
-    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    border: "1px solid var(--glass-border)",
-    boxShadow: "var(--glass-shadow)",
-  },
-  logoSection: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "12px",
-    marginBottom: "8px",
+    maxWidth: "540px",
+    padding: "34px 38px",
+    borderRadius: "var(--r-2xl)",
+    background: "rgba(28,27,26,0.84)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    border: "1px solid rgba(153,144,124,0.14)",
+    boxShadow: "0 24px 70px rgba(0,0,0,0.46)",
+    textAlign: "center",
   },
   logoIcon: {
-    width: "44px",
-    height: "44px",
-    borderRadius: "var(--r-md)",
-    background: "var(--accent-dim)",
-    border: "1px solid rgba(108,99,255,0.3)",
+    width: "54px",
+    height: "54px",
+    borderRadius: "var(--r-xl)",
+    background: "linear-gradient(135deg, var(--accent-soft), var(--accent-strong))",
+    color: "#241a00",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "var(--accent)",
+    margin: "0 auto 14px",
   },
-  logoText: {
-    fontFamily: "var(--font-display)",
-    fontSize: "26px",
-    fontWeight: "800",
-    color: "var(--text-primary)",
-  },
-  subtitle: {
-    textAlign: "center",
-    color: "var(--text-secondary)",
-    fontSize: "14px",
-    marginBottom: "24px",
-  },
-  form: { display: "flex", flexDirection: "column", gap: "14px" },
+  logoText: { fontFamily: "var(--font-display)", fontSize: "30px", lineHeight: 1, fontWeight: 800, color: "var(--text-primary)" },
+  subtitle: { color: "var(--text-muted)", fontSize: "14px", marginTop: "10px", marginBottom: "26px" },
+  form: { display: "flex", flexDirection: "column", gap: "14px", textAlign: "left" },
   row: { display: "flex", gap: "12px" },
-  inputGroup: { display: "flex", flexDirection: "column", gap: "5px" },
-  label: { fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.05em" },
-  input: {
-    width: "100%",
-    padding: "11px 14px",
-    borderRadius: "var(--r-md)",
-    border: "1px solid var(--border)",
-    background: "var(--surface)",
-    color: "var(--text-primary)",
-    fontSize: "14px",
-    fontFamily: "var(--font-body)",
-    outline: "none",
-    transition: "border-color var(--dur-normal) var(--ease-smooth)",
-  },
-  genderRow: { display: "flex", gap: "12px" },
-  genderBtn: {
-    flex: 1,
-    padding: "10px",
-    borderRadius: "var(--r-md)",
-    border: "1px solid var(--border)",
-    background: "var(--surface)",
-    color: "var(--text-secondary)",
-    fontSize: "13px",
-    fontFamily: "var(--font-body)",
-    fontWeight: 500,
-    cursor: "pointer",
-    transition: "all var(--dur-normal) var(--ease-smooth)",
-  },
-  genderActive: {
-    borderColor: "rgba(108,99,255,0.4)",
-    background: "var(--accent-dim)",
-    color: "var(--accent)",
-    boxShadow: "0 0 12px rgba(108,99,255,0.15)",
-  },
-  divider: { display: "flex", alignItems: "center", gap: "16px", margin: "20px 0" },
-  dividerLine: { flex: 1, height: "1px", background: "var(--border)" },
-  dividerText: { fontSize: "12px", fontFamily: "var(--font-mono)", color: "var(--text-muted)" },
-  switchLink: {
-    display: "block",
-    textAlign: "center",
-    color: "var(--text-secondary)",
-    fontSize: "14px",
-    textDecoration: "none",
-  },
-  switchAccent: { color: "var(--accent)", fontWeight: "600" },
+  inputGroup: { display: "flex", flexDirection: "column", gap: "7px", flex: 1, minWidth: 0 },
+  label: { fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.10em", textTransform: "uppercase" },
+  inputShell: { display: "flex", alignItems: "center", gap: "10px", padding: "0 14px", borderRadius: "var(--r-xl)", border: "1px solid var(--border)", background: "rgba(53,53,52,0.32)" },
+  inputIcon: { color: "var(--text-muted)", display: "inline-flex", flexShrink: 0 },
+  input: { width: "100%", height: "44px", border: "none", background: "transparent", color: "var(--text-primary)", fontSize: "14px", fontFamily: "var(--font-body)", outline: "none", minWidth: 0 },
+  genderRow: { display: "flex", gap: "10px" },
+  genderBtn: { flex: 1, padding: "11px", borderRadius: "var(--r-xl)", border: "1px solid var(--border)", background: "rgba(53,53,52,0.32)", color: "var(--text-secondary)", fontSize: "13px", fontFamily: "var(--font-body)", fontWeight: 700 },
+  genderActive: { borderColor: "rgba(242,202,80,0.30)", background: "var(--accent-dim)", color: "var(--accent)" },
+  switchRow: { display: "flex", justifyContent: "center", gap: "8px", marginTop: "22px", fontSize: "14px" },
+  switchText: { color: "var(--text-muted)" },
+  switchLink: { color: "var(--accent)", textDecoration: "none", fontWeight: 700 },
 };
 
 export default SignUp;

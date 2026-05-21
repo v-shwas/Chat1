@@ -6,15 +6,24 @@ import useCallStore from "../../store/useCallStore";
 import MessageBubble from "./MessageBubble";
 import VoiceRecorder from "./VoiceRecorder";
 import Avatar from "../ui/Avatar";
-import { Phone, Video, Paperclip, Send, Smile, ArrowDown, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, Paperclip, Phone, Send, ShieldCheck, Video, X } from "lucide-react";
 import axios from "axios";
 import { API_BASE } from "../../config";
 
 const ChatArea = () => {
   const {
-    selectedUser, messages, isMessagesLoading, sendMessage,
-    getMessages, subscribeToMessages, unsubscribeFromMessages,
-    typingUsers, replyingTo, cancelReply, markAsRead,
+    selectedUser,
+    messages,
+    isMessagesLoading,
+    sendMessage,
+    getMessages,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+    typingUsers,
+    replyingTo,
+    cancelReply,
+    markAsRead,
+    setSelectedUser,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const { socket, onlineUsers } = useSocketStore();
@@ -41,14 +50,9 @@ const ChatArea = () => {
 
   const handleScroll = () => {
     const el = messagesAreaRef.current;
-    if (el) {
-      const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-      setShowScrollBtn(distFromBottom > 200);
-    }
-  };
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!el) return;
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setShowScrollBtn(distFromBottom > 200);
   };
 
   const handleTyping = (e) => {
@@ -94,7 +98,7 @@ const ChatArea = () => {
         fileMimeType: mimeType,
       });
     } catch {
-      // toast is handled by store
+      // Store-level toasts cover failed sends.
     }
     e.target.value = "";
   };
@@ -116,7 +120,7 @@ const ChatArea = () => {
         fileMimeType: "audio/webm",
       });
     } catch {
-      // handled
+      // Store-level toasts cover failed sends.
     }
   };
 
@@ -126,83 +130,73 @@ const ChatArea = () => {
     }
   };
 
-  const isTyping = selectedUser && typingUsers[selectedUser._id];
-
-  /* ═══ EMPTY STATE ═══ */
   if (!selectedUser) {
     return (
-      <div style={styles.emptyWrapper}>
+      <section style={styles.emptyWrapper}>
         <div style={styles.emptyContent} className="animate-fade-in-up">
           <div style={styles.emptyIcon}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+            <ShieldCheck size={44} />
           </div>
-          <h2 style={styles.emptyTitle}>Welcome to ChatFlow</h2>
-          <p style={styles.emptySubtitle}>
-            Select a conversation to start messaging
-          </p>
+          <h2 style={styles.emptyTitle}>Aurum is ready</h2>
+          <p style={styles.emptySubtitle}>Choose a thread to open a protected conversation.</p>
         </div>
-      </div>
+      </section>
     );
   }
 
   const isOnline = onlineUsers.includes(selectedUser._id);
+  const isTyping = typingUsers[selectedUser._id];
 
   return (
-    <div style={styles.outerContainer}>
+    <section style={styles.outerContainer}>
       <div style={styles.chatContainer}>
-        {/* ── Chat Header ── */}
-        <div style={styles.chatHeader}>
+        <header style={styles.chatHeader}>
           <div style={styles.headerLeft}>
-            <Avatar
-              src={selectedUser.profilePic}
-              name={selectedUser.fullname}
-              size="sm"
-              online={isOnline}
-            />
+            <button className="mobile-only" onClick={() => setSelectedUser(null)} style={styles.mobileBack}>
+              <ArrowLeft size={18} />
+            </button>
+            <Avatar src={selectedUser.profilePic} name={selectedUser.fullname} size="md" online={isOnline} />
             <div>
               <h3 style={styles.headerName}>{selectedUser.fullname}</h3>
               <p style={styles.headerStatus}>
-                {isTyping ? (
-                  <span style={{ color: "var(--cyan)" }}>typing...</span>
-                ) : isOnline ? (
-                  "Online"
-                ) : (
-                  `Last seen ${selectedUser.lastSeen ? new Date(selectedUser.lastSeen).toLocaleString() : "recently"}`
-                )}
+                {isTyping ? "Typing securely" : isOnline ? "Secure connection" : "Protected archive"}
               </p>
             </div>
           </div>
           <div style={styles.headerRight}>
-            <button onClick={() => handleCall("audio")} style={styles.headerBtn} title="Voice Call">
-              <Phone size={16} />
+            <button onClick={() => handleCall("audio")} style={styles.headerBtn} title="Voice call">
+              <Phone size={17} />
             </button>
-            <button onClick={() => handleCall("video")} style={styles.headerBtn} title="Video Call">
-              <Video size={16} />
+            <button onClick={() => handleCall("video")} style={styles.headerBtn} title="Video call">
+              <Video size={17} />
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* ── Messages ── */}
         <div style={styles.messagesArea} ref={messagesAreaRef} onScroll={handleScroll}>
+          <div style={styles.dayPill}>Today</div>
+
           {isMessagesLoading ? (
             <div style={styles.loadingWrapper}>
               {[1, 2, 3].map((i) => (
-                <div key={i} style={{
-                  ...styles.skeleton,
-                  alignSelf: i % 2 === 0 ? "flex-end" : "flex-start",
-                  width: `${Math.random() * 30 + 25}%`,
-                }} />
+                <div
+                  key={i}
+                  style={{
+                    ...styles.skeleton,
+                    alignSelf: i % 2 === 0 ? "flex-end" : "flex-start",
+                    width: `${i * 12 + 30}%`,
+                  }}
+                />
               ))}
             </div>
           ) : messages.length === 0 ? (
             <div style={styles.noMessages}>
-              <p style={styles.noMessagesText}>No messages yet. Say hi!</p>
+              <p style={styles.noMessagesText}>No messages yet. Start with something worth protecting.</p>
             </div>
           ) : (
             messages.map((msg) => {
-              const isSent = msg.senderId === authUser?._id;
+              const senderId = msg.senderId?._id || msg.senderId;
+              const isSent = senderId === authUser?._id;
               return (
                 <MessageBubble
                   key={msg._id}
@@ -226,21 +220,20 @@ const ChatArea = () => {
         </div>
 
         {showScrollBtn && (
-          <button style={styles.scrollBtn} onClick={scrollToBottom}>
+          <button style={styles.scrollBtn} onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })}>
             <ArrowDown size={16} />
           </button>
         )}
 
-        {/* ── Reply Preview ── */}
         {replyingTo && (
           <div style={styles.replyBar}>
             <div style={styles.replyLeft}>
               <div style={styles.replyAccent} />
               <div>
-                <span style={styles.replyLabel}>Replying to</span>
+                <span style={styles.replyLabel}>Replying to message</span>
                 <p style={styles.replyText}>
-                  {replyingTo.message?.substring(0, 60) || "Message"}
-                  {replyingTo.message?.length > 60 ? "..." : ""}
+                  {replyingTo.message?.substring(0, 72) || "Attachment"}
+                  {replyingTo.message?.length > 72 ? "..." : ""}
                 </p>
               </div>
             </div>
@@ -250,186 +243,243 @@ const ChatArea = () => {
           </div>
         )}
 
-        {/* ── Input ── */}
-        <div style={styles.inputSection}>
+        <footer style={styles.inputSection}>
           <form onSubmit={handleSend} style={styles.inputRow}>
             <input type="file" ref={fileInputRef} onChange={handleFileUpload} style={{ display: "none" }} />
-            <button type="button" onClick={() => fileInputRef.current?.click()} style={styles.inputIconBtn}>
+            <button type="button" onClick={() => fileInputRef.current?.click()} style={styles.inputIconBtn} title="Attach file">
               <Paperclip size={18} />
             </button>
-
             <input
               type="text"
-              placeholder="Type a message..."
+              placeholder="Send secure message"
               value={text}
               onChange={handleTyping}
               style={styles.messageInput}
             />
-
             <VoiceRecorder onSend={handleVoiceSend} />
-
-            <button
-              type="submit"
-              disabled={!text.trim()}
-              style={{
-                ...styles.sendBtn,
-                opacity: text.trim() ? 1 : 0.4,
-              }}
-            >
+            <button type="submit" disabled={!text.trim()} style={{ ...styles.sendBtn, opacity: text.trim() ? 1 : 0.45 }}>
               <Send size={18} />
             </button>
           </form>
-        </div>
+        </footer>
       </div>
 
-      {/* ═══ RIGHT INFO PANEL ═══ */}
-      <div style={styles.rightPanel}>
+      <aside className="desktop-info-panel" style={styles.rightPanel}>
         <div style={styles.panelCard}>
-          <div style={styles.profileSection}>
-            <Avatar
-              src={selectedUser.profilePic}
-              name={selectedUser.fullname}
-              size="xl"
-              online={isOnline}
-            />
-            <h3 style={styles.profileName}>{selectedUser.fullname}</h3>
-            <p style={styles.profileAbout}>{selectedUser.about || "Hey there!"}</p>
-            <span style={styles.profileUsername}>@{selectedUser.username}</span>
+          <Avatar src={selectedUser.profilePic} name={selectedUser.fullname} size="xl" online={isOnline} />
+          <h3 style={styles.profileName}>{selectedUser.fullname}</h3>
+          <span style={styles.profileUsername}>@{selectedUser.username}</span>
+          <p style={styles.profileAbout}>{selectedUser.about || "Available on Aurum."}</p>
+        </div>
+        <div style={styles.securityCard}>
+          <ShieldCheck size={18} />
+          <div>
+            <p style={styles.securityTitle}>Session status</p>
+            <p style={styles.securityCopy}>Messages are routed through your authenticated session.</p>
           </div>
         </div>
-      </div>
-    </div>
+      </aside>
+    </section>
   );
 };
 
 const styles = {
-  emptyWrapper: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center" },
-  emptyContent: { textAlign: "center", padding: "40px" },
+  emptyWrapper: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" },
+  emptyContent: { textAlign: "center", padding: "40px", maxWidth: "420px" },
   emptyIcon: {
-    width: "100px", height: "100px", borderRadius: "50%",
-    background: "var(--accent-dim)", border: "1px solid rgba(108,99,255,0.2)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    color: "var(--accent)", margin: "0 auto 24px",
+    width: "104px",
+    height: "104px",
+    borderRadius: "50%",
+    background: "var(--accent-dim)",
+    border: "1px solid rgba(242,202,80,0.20)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "var(--accent)",
+    margin: "0 auto 24px",
+    boxShadow: "0 18px 46px rgba(0,0,0,0.36)",
   },
-  emptyTitle: { fontFamily: "var(--font-display)", fontSize: "24px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "8px" },
-  emptySubtitle: { fontSize: "14px", color: "var(--text-muted)", maxWidth: "300px", margin: "0 auto" },
-
-  outerContainer: { flex: 1, display: "flex", overflow: "hidden" },
-  chatContainer: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" },
-
+  emptyTitle: { fontFamily: "var(--font-display)", fontSize: "26px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px" },
+  emptySubtitle: { fontSize: "14px", color: "var(--text-muted)", margin: "0 auto" },
+  outerContainer: { flex: 1, display: "flex", overflow: "hidden", minWidth: 0 },
+  chatContainer: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", minWidth: 0 },
   chatHeader: {
-    height: "60px", minHeight: "60px",
-    display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "0 20px",
-    background: "rgba(3,4,10,0.75)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    borderBottom: "1px solid var(--border)",
+    height: "68px",
+    minHeight: "68px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 24px",
+    background: "rgba(19,19,19,0.76)",
+    backdropFilter: "blur(18px)",
+    WebkitBackdropFilter: "blur(18px)",
+    borderBottom: "1px solid rgba(153,144,124,0.10)",
     zIndex: "var(--z-header)",
   },
-  headerLeft: { display: "flex", alignItems: "center", gap: "12px" },
-  headerName: { fontFamily: "var(--font-display)", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)", margin: 0 },
-  headerStatus: { fontSize: "12px", color: "var(--text-muted)", margin: 0, marginTop: "1px" },
-  headerRight: { display: "flex", alignItems: "center", gap: "6px" },
-  headerBtn: {
-    width: "36px", height: "36px", borderRadius: "var(--r-full)",
-    border: "1px solid var(--border)", background: "var(--surface)",
+  headerLeft: { display: "flex", alignItems: "center", gap: "12px", minWidth: 0 },
+  mobileBack: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "var(--r-full)",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
     color: "var(--text-secondary)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    cursor: "pointer", transition: "all var(--dur-normal) var(--ease-smooth)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-
-  messagesArea: { flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: "2px" },
+  headerName: { fontFamily: "var(--font-display)", fontSize: "15px", fontWeight: 700, color: "var(--text-primary)", margin: 0 },
+  headerStatus: { fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--accent)", margin: 0, marginTop: "2px", textTransform: "uppercase", letterSpacing: "0.12em" },
+  headerRight: { display: "flex", alignItems: "center", gap: "8px" },
+  headerBtn: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "var(--r-full)",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
+    color: "var(--text-secondary)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  messagesArea: { flex: 1, overflowY: "auto", padding: "24px", display: "flex", flexDirection: "column", gap: "10px" },
+  dayPill: {
+    alignSelf: "center",
+    padding: "5px 14px",
+    borderRadius: "var(--r-full)",
+    background: "rgba(53,53,52,0.42)",
+    color: "var(--text-muted)",
+    fontFamily: "var(--font-mono)",
+    fontSize: "10px",
+    textTransform: "uppercase",
+    letterSpacing: "0.14em",
+    marginBottom: "12px",
+  },
   loadingWrapper: { display: "flex", flexDirection: "column", gap: "12px", padding: "20px" },
-  skeleton: { height: "50px", borderRadius: "var(--r-md)", background: "linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" },
-  noMessages: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" },
+  skeleton: { height: "52px", borderRadius: "var(--r-xl)", background: "linear-gradient(90deg, rgba(53,53,52,0.25) 25%, rgba(80,72,52,0.28) 50%, rgba(53,53,52,0.25) 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" },
+  noMessages: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center" },
   noMessagesText: { fontSize: "14px", color: "var(--text-muted)" },
-
   typingBubble: {
-    display: "flex", gap: "4px", alignItems: "center",
-    padding: "10px 16px", borderRadius: "18px 18px 18px 4px",
-    background: "var(--glass-bg)", border: "1px solid var(--glass-border)",
-    width: "fit-content", marginTop: "4px",
+    display: "flex",
+    gap: "5px",
+    alignItems: "center",
+    padding: "11px 16px",
+    borderRadius: "18px 18px 18px 4px",
+    background: "rgba(32,31,29,0.74)",
+    border: "1px solid var(--border)",
+    width: "fit-content",
+    marginTop: "4px",
   },
   typingDot: { width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", animation: "pulse-dot 1s infinite" },
-
   scrollBtn: {
-    position: "absolute", bottom: "90px", right: "32px",
-    width: "36px", height: "36px", borderRadius: "50%",
-    background: "var(--glass-bg)", backdropFilter: "blur(10px)",
-    border: "1px solid var(--glass-border)", color: "var(--text-secondary)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    cursor: "pointer", zIndex: 5,
-  },
-
-  replyBar: {
-    display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "8px 20px",
-    background: "rgba(108,99,255,0.06)",
-    borderTop: "1px solid var(--border)",
-  },
-  replyLeft: { display: "flex", alignItems: "stretch", gap: "10px" },
-  replyAccent: { width: "3px", borderRadius: "2px", background: "var(--accent)" },
-  replyLabel: { fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--accent)", display: "block", marginBottom: "2px" },
-  replyText: { fontSize: "12px", color: "var(--text-secondary)", margin: 0 },
-  replyClose: { width: "28px", height: "28px", borderRadius: "var(--r-sm)", border: "none", background: "transparent", color: "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
-
-  inputSection: {
-    padding: "12px 20px 16px",
-    background: "rgba(3,4,10,0.85)",
-    backdropFilter: "blur(30px)",
-    WebkitBackdropFilter: "blur(30px)",
-    borderTop: "1px solid var(--border)",
-    boxShadow: "0 -20px 60px rgba(3,4,10,0.8)",
-  },
-  inputRow: {
-    display: "flex", alignItems: "center", gap: "8px",
-    padding: "6px 8px",
-    borderRadius: "var(--r-xl)",
+    position: "absolute",
+    bottom: "96px",
+    right: "32px",
+    width: "38px",
+    height: "38px",
+    borderRadius: "50%",
     background: "var(--glass-bg)",
+    backdropFilter: "blur(10px)",
     border: "1px solid var(--glass-border)",
+    color: "var(--text-secondary)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 5,
   },
-  inputIconBtn: {
-    width: "36px", height: "36px", borderRadius: "50%",
-    border: "none", background: "transparent",
-    color: "var(--text-muted)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    cursor: "pointer", flexShrink: 0,
+  replyBar: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "10px 24px",
+    background: "rgba(212,175,55,0.08)",
+    borderTop: "1px solid var(--border)",
   },
-  messageInput: {
-    flex: 1, border: "none", background: "transparent",
-    color: "var(--text-primary)", fontSize: "14px",
-    fontFamily: "var(--font-body)", outline: "none",
-    padding: "8px 4px",
-  },
-  sendBtn: {
-    width: "40px", height: "40px", borderRadius: "50%",
-    border: "none",
-    background: "linear-gradient(135deg, var(--accent), var(--cyan))",
-    color: "#fff",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    cursor: "pointer", flexShrink: 0,
-    boxShadow: "0 4px 16px rgba(108,99,255,0.35)",
-    transition: "all var(--dur-normal) var(--ease-smooth)",
-  },
-
-  rightPanel: {
-    width: "260px", minWidth: "260px", height: "100%",
-    background: "rgba(3,4,10,0.6)",
+  replyLeft: { display: "flex", alignItems: "stretch", gap: "10px", minWidth: 0 },
+  replyAccent: { width: "3px", borderRadius: "2px", background: "var(--accent)" },
+  replyLabel: { fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--accent)", display: "block", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.10em" },
+  replyText: { fontSize: "12px", color: "var(--text-secondary)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  replyClose: { width: "28px", height: "28px", borderRadius: "var(--r-full)", border: "none", background: "transparent", color: "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center" },
+  inputSection: {
+    padding: "14px 24px 18px",
+    background: "rgba(19,19,19,0.82)",
     backdropFilter: "blur(20px)",
     WebkitBackdropFilter: "blur(20px)",
-    borderLeft: "1px solid var(--border)",
-    padding: "20px 16px", display: "flex", flexDirection: "column", gap: "12px",
+    borderTop: "1px solid rgba(153,144,124,0.10)",
+  },
+  inputRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    padding: "7px 8px",
+    borderRadius: "var(--r-full)",
+    background: "rgba(28,27,26,0.88)",
+    border: "1px solid var(--border)",
+  },
+  inputIconBtn: {
+    width: "38px",
+    height: "38px",
+    borderRadius: "50%",
+    border: "none",
+    background: "transparent",
+    color: "var(--text-muted)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  messageInput: { flex: 1, border: "none", background: "transparent", color: "var(--text-primary)", fontSize: "14px", fontFamily: "var(--font-body)", outline: "none", padding: "8px 4px", minWidth: 0 },
+  sendBtn: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "50%",
+    border: "none",
+    background: "linear-gradient(135deg, var(--accent-soft), var(--accent-strong))",
+    color: "#241a00",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    boxShadow: "0 8px 20px rgba(212,175,55,0.22)",
+  },
+  rightPanel: {
+    width: "280px",
+    minWidth: "280px",
+    height: "100%",
+    background: "rgba(20,19,18,0.72)",
+    backdropFilter: "blur(18px)",
+    WebkitBackdropFilter: "blur(18px)",
+    borderLeft: "1px solid rgba(153,144,124,0.10)",
+    padding: "22px 18px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
     overflowY: "auto",
   },
   panelCard: {
-    padding: "24px 16px", borderRadius: "var(--r-lg)",
-    background: "var(--glass-bg)", border: "1px solid var(--glass-border)",
+    padding: "24px 16px",
+    borderRadius: "var(--r-xl)",
+    background: "var(--glass-bg)",
+    border: "1px solid var(--glass-border)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "10px",
+    boxShadow: "var(--glass-shadow)",
   },
-  profileSection: { display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" },
-  profileName: { fontFamily: "var(--font-display)", fontSize: "16px", fontWeight: 700, color: "var(--text-primary)", margin: 0 },
-  profileAbout: { fontSize: "13px", color: "var(--text-muted)", textAlign: "center", margin: 0 },
-  profileUsername: { fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-secondary)" },
+  profileName: { fontFamily: "var(--font-display)", fontSize: "17px", fontWeight: 700, color: "var(--text-primary)", margin: "4px 0 0" },
+  profileAbout: { fontSize: "13px", color: "var(--text-muted)", textAlign: "center", margin: "4px 0 0" },
+  profileUsername: { fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--accent)" },
+  securityCard: {
+    display: "flex",
+    gap: "12px",
+    padding: "16px",
+    borderRadius: "var(--r-xl)",
+    background: "rgba(212,175,55,0.08)",
+    border: "1px solid rgba(242,202,80,0.14)",
+    color: "var(--accent)",
+  },
+  securityTitle: { margin: 0, fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" },
+  securityCopy: { margin: "3px 0 0", fontSize: "12px", color: "var(--text-muted)", lineHeight: 1.5 },
 };
 
 export default ChatArea;

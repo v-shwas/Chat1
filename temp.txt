@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enigma | Secure Communications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(115, 95, 50, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(115, 95, 50, 0.5);
+        }
+        .glass-panel {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#e5e2e1",
+                    "on-secondary": "#3e2e05",
+                    "on-error": "#690005",
+                    "on-primary-fixed-variant": "#574500",
+                    "surface-dim": "#131313",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "error-container": "#93000a",
+                    "surface-tint": "#e9c349",
+                    "tertiary": "#d0cdcd",
+                    "tertiary-fixed": "#e5e2e1",
+                    "on-surface-variant": "#d0c5af",
+                    "on-primary-fixed": "#241a00",
+                    "on-tertiary-fixed": "#1b1b1c",
+                    "surface-bright": "#393939",
+                    "on-secondary-fixed": "#251a00",
+                    "surface-container": "#201f1f",
+                    "on-surface": "#e5e2e1",
+                    "primary-fixed": "#ffe088",
+                    "on-tertiary-container": "#454544",
+                    "on-tertiary": "#303030",
+                    "background": "#131313",
+                    "inverse-surface": "#e5e2e1",
+                    "secondary-fixed-dim": "#dec38d",
+                    "tertiary-container": "#b4b2b2",
+                    "on-primary-container": "#554300",
+                    "secondary": "#dec38d",
+                    "primary-container": "#d4af37",
+                    "on-primary": "#3c2f00",
+                    "surface-container-low": "#1c1b1b",
+                    "surface": "#131313",
+                    "inverse-on-surface": "#313030",
+                    "inverse-primary": "#735c00",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed-dim": "#e9c349",
+                    "outline-variant": "#4d4635",
+                    "on-secondary-container": "#cfb580",
+                    "outline": "#99907c",
+                    "primary": "#f2ca50",
+                    "on-secondary-fixed-variant": "#56441a",
+                    "error": "#ffb4ab",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-variant": "#353534",
+                    "secondary-fixed": "#fbdfa7",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "secondary-container": "#59471c",
+                    "surface-container-highest": "#353534",
+                    "surface-container-high": "#2a2a2a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "gutter": "16px",
+                    "unit": "8px",
+                    "stack-sm": "8px",
+                    "container-padding": "24px",
+                    "stack-lg": "32px"
+            },
+            "fontFamily": {
+                    "label-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md overflow-hidden h-screen flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- NAVIGATION DRAWER (Pane 1) -->
+<!-- Logic: Maps to NavigationDrawer from JSON. Header aligned left, icons for primary nav. -->
+<aside class="flex flex-col h-full w-20 md:w-80 bg-surface-container border-r border-outline-variant/10 shadow-[10px_0_30px_rgba(0,0,0,0.5)] transition-all duration-300 ease-in-out p-gutter">
+<div class="flex items-center gap-4 mb-stack-lg">
+<div class="relative">
+<img alt="Julian Sterling" class="w-12 h-12 rounded-full border border-primary/20 object-cover" data-alt="A professional close-up portrait of a man with a refined, confident expression. He is set against a dark, moody background with subtle golden rim lighting. The aesthetic is luxurious and executive, matching a high-end corporate communication platform with matte black and muted gold tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgLTgqFwdMh3qSUq-dap9fmzYd9-0Yh2ndVO34DXCPEvNqLkrcZ7FFPnxGFQ5dSM4_Pptq2CDsO10mF8dPHt_GJwevClmWQM3WpbStZUi3PeJ9cotHTruuff4QM0KSMSXVQv4g7fmex-o14Th_wZefq0nTZMjT8k3EAujYtIBALodVLBqNb2Z77ZuK-ME8V2_RfY2oBaLA5XY0uK-u9f87oacc-LOewJkRtvpNS_c-iyr25Eba1joeEZYCQ4vZ4qak-ujWR-2oCDA"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-surface-container"></div>
+</div>
+<div class="hidden md:block overflow-hidden">
+<h2 class="font-headline-md text-headline-md text-on-surface truncate">Julian Sterling</h2>
+<div class="flex items-center gap-2">
+<span class="text-primary text-[10px] uppercase tracking-widest font-bold">Premium</span>
+<span class="text-outline text-label-sm font-label-sm">Online</span>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-unit">
+<!-- Active Tab: Conversations -->
+<a class="flex items-center gap-4 px-4 py-3 bg-primary-container/20 text-primary font-bold rounded-lg transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-primary" data-icon="message">message</span>
+<span class="hidden md:block font-label-lg text-label-lg">Conversations</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+<span class="hidden md:block font-label-lg text-label-lg">Calls</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="dialpad">dialpad</span>
+<span class="hidden md:block font-label-lg text-label-lg">Keypad</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="archive">archive</span>
+<span class="hidden md:block font-label-lg text-label-lg">Archive</span>
+</a>
+</nav>
+<div class="mt-auto space-y-unit">
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="hidden md:block font-label-lg text-label-lg">Settings</span>
+</a>
+</div>
+</aside>
+<!-- CHAT LIST (Pane 2) -->
+<!-- Logic: Responsive width, scrollable area, tonal layering. -->
+<main class="flex flex-col w-full md:w-96 bg-surface-container-low border-r border-outline-variant/5">
+<header class="h-16 flex items-center px-container-padding justify-between">
+<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">Enigma</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/10 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="edit_square">edit_square</span>
+</button>
+</header>
+<div class="px-container-padding mb-4">
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-sm" data-icon="search">search</span>
+<input class="w-full bg-surface-container-highest/50 border-none rounded-xl py-2 pl-10 pr-4 text-body-md focus:ring-1 focus:ring-primary/30 placeholder:text-outline/50 transition-all" placeholder="Search conversations..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-px">
+<!-- Chat Item Active -->
+<div class="px-container-padding py-4 bg-surface-variant/10 border-l-4 border-primary flex gap-4 cursor-pointer hover:bg-surface-variant/20 transition-colors">
+<div class="relative shrink-0">
+<img alt="Sloane Vance" class="w-12 h-12 rounded-full object-cover" data-alt="A portrait of a woman with an elegant, professional look, wearing a dark blazer. The lighting is low-key with golden highlights, creating a sense of luxury and mystery. The background is a soft-focus office environment in dark charcoal tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjGx-QVhmpF8f0i8wyBknv0RJC1PvPlsFrAsGZNp9H6TtETgzwQNTpVSpwQdRg5Uruf457LTZ8qqItdq2-EcXN3Q8fHytlIzzU29CsVD3Dpz-hEauXo7UnWk3WcNMX9qySzURykLlM2iEi8149Rcyg6XC7frOmfPtFw0id2Y0h2aRxVgBqzeFxfFbaPoXlrL3va6ZtPZQ3IfTI3mx9wbkkQ30W2DfEWhNliyIW1QS4dQ6EOM-79TjJgnu0j7gtihtZaXGCnL9RwFg"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-surface-container-low"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Sloane Vance</h3>
+<span class="text-[11px] text-primary">12:45 PM</span>
+</div>
+<p class="text-body-md text-on-surface-variant truncate font-medium">The board approved the new security protocols...</p>
+</div>
+</div>
+<!-- Chat Item -->
+<div class="px-container-padding py-4 flex gap-4 cursor-pointer hover:bg-surface-variant/10 transition-colors group">
+<div class="relative shrink-0">
+<img alt="Marcus Thorne" class="w-12 h-12 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="A professional portrait of a man in a sophisticated dark suit. High-contrast lighting with deep shadows and subtle bronze tones. The overall feel is one of power and discretion, set against a matte black studio background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtszRG9B7QLg7xqTPmN-vjjxv4ET-7Xu-vTHmTRUsGQOzMPzEb0eYEev53mpXqZ3F3PCyI0MInkagMqjXWlGC9SuxnvPk5FijAWd_OMUDicJKgQgcqpbA-iC19A7zbCKEd0cXg7CYC33_ftH5v53WP86sNdZJGQF6OqUfAgO8X6paY6jw0Yl7qqUYA3k6gWtdH1U43zitOOPBOhO3mckWzPJhQKBDDECCZQE8F5JPMLknAeUEr5NMyQkBDmfqqQu5_LVs7yqVMywM"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Marcus Thorne</h3>
+<span class="text-[11px] text-outline">Yesterday</span>
+</div>
+<p class="text-body-md text-outline truncate">Files have been encrypted and moved to the...</p>
+</div>
+</div>
+<!-- Chat Item -->
+<div class="px-container-padding py-4 flex gap-4 cursor-pointer hover:bg-surface-variant/10 transition-colors group">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="groups">groups</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Executive Circle</h3>
+<span class="text-[11px] text-outline">Oct 24</span>
+</div>
+<p class="text-body-md text-outline truncate"><span class="text-on-surface">Elena:</span> Meeting scheduled for 0900 tomorrow.</p>
+</div>
+</div>
+<!-- Chat Item -->
+<div class="px-container-padding py-4 flex gap-4 cursor-pointer hover:bg-surface-variant/10 transition-colors group">
+<div class="relative shrink-0">
+<img alt="Elena Rossi" class="w-12 h-12 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="A sophisticated woman with a focused expression, wearing designer glasses and a dark turtleneck. The lighting is cinematic, featuring warm golden tones against a deep black background, conveying intelligence and high-status." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT2Vc0heeZS4jS2NSfeFvCjjj67I7_OLNiKAJMtKnaicK_kSFGOfzsqLCc3DpjQxyX5IrHtTexuHlG5fpEnfGLzyCf3oOzcDdGbfZGUZ-5z0c0KIM9oVq_IOv4C6NkZ0iGkm-UmXJ2NCw6xz9N-17osNlPZFRXzv-ffHQdRKy3Wjw_bsBXk5LcV7NMdJ8hQNncPigwdhyAY6sHUfQB9ktu9i9xDEYPgCXwM-dTd-xoo1bthP8lEMNZgYzTqtAzqAsxOlF03fufv4Q"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Elena Rossi</h3>
+<span class="text-[11px] text-outline">Oct 22</span>
+</div>
+<p class="text-body-md text-outline truncate">Confirmed. See you then.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- ACTIVE CONVERSATION (Pane 3) -->
+<!-- Logic: Fluid width, center content focus, dark luxury aesthetic. -->
+<section class="flex-1 flex flex-col bg-background relative overflow-hidden">
+<!-- Background Texture Effect -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, #D4AF37 1px, transparent 0); background-size: 40px 40px;"></div>
+<!-- Header -->
+<header class="h-16 flex items-center px-container-padding justify-between glass-panel z-10 border-b border-outline-variant/5">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Sloane Vance" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMB65ocfaUk2TJ5z62VEjsbzU3bzT4tOP25LULHmixp9xUQHGI2jqDpQKvEEVeMY4lChGC0unAgO2qj2jg1JPkgK6702H9I_6913hMrJPqq3KP2i5fCQY9FudNMNZLJnO5npdLvp9vY-X9LQzbJkoaP2LRVv9TAA9Cxr8YwL7cNAwWhrRkp3i-bsvypm7I2mh2MWLuJm4KU0JcdZ_Mu__7zp5fpHEyfvwOQai5VCy2-F7MdFMGLJxLgj84yjQNhGe_vBqcC8LdFQU"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-surface"></div>
+</div>
+<div>
+<h2 class="font-label-lg text-label-lg text-on-surface leading-tight">Sloane Vance</h2>
+<p class="text-[10px] text-primary uppercase tracking-widest font-bold">Encrypted Session</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/10 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/10 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-container-padding flex flex-col gap-stack-md z-0">
+<div class="flex flex-col items-center my-stack-lg">
+<div class="px-4 py-1.5 bg-surface-container-high rounded-full text-[11px] text-outline uppercase tracking-widest font-semibold">Today</div>
+</div>
+<!-- Incoming Message -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<img alt="Sloane Vance" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARwtcxpmEJfAXaxfPARiEYnkfl5GinKNh5NtMLpaJwclXxAlqDJbhZd-RpMeCbyLQm5LG8TfN49Nd7lGUQ20je4q4_sudtz93Owwz4ATpvZnu5l6-V6_kP5ngzMYjtSW1pm7SKQakmEzYwg674tdawJ_JYZy0JErcX8HyhDgm_qKz772e2k3acLZuv5_hsT0-8edgBC-L43np7q2Bm9gGETKo0V7CyOO_l2fh__gI7Mij6ypqzDYKoy4P7u_aS2XPUC1Ze6PJBgHQ"/>
+<div class="group relative">
+<div class="bg-surface-container-high text-on-surface px-4 py-3 rounded-2xl rounded-bl-none shadow-lg">
+<p class="text-body-md">Julian, the board just finished the review. They approved the new security protocols for the Zurich facility.</p>
+</div>
+<span class="text-[10px] text-outline mt-1 block">12:40 PM</span>
+</div>
+</div>
+<!-- Outgoing Message -->
+<div class="flex flex-col items-end gap-1 ml-auto max-w-[80%]">
+<div class="bg-primary-container text-on-primary-container px-4 py-3 rounded-2xl rounded-br-none shadow-[0_4px_20px_rgba(212,175,55,0.2)]">
+<p class="text-body-md font-medium">Excellent news. Was there any pushback on the hardware encryption requirements?</p>
+</div>
+<div class="flex items-center gap-1">
+<span class="text-[10px] text-outline">12:42 PM</span>
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="done_all" style="font-variation-settings: 'FILL' 1;">done_all</span>
+</div>
+</div>
+<!-- Incoming Message -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<img alt="Sloane Vance" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD9o1-QE8K6MLbBGfI1PVGlsVhQj2JANeA2TMr-7Rk3FBWfGGCZVFef39bSmgXwo93BA5am-PZJgzebW3w93A5yQdqXhPX6I7JfWDUhAyd4F0ofehNr22CTA4XWgckC1gbBlzJezH4x22MZkRlU_LMDSxi0R2hNGtGEEWYMKiQPMZ-SVTj65m9q66Rlx0GLvGGIt2wr7QYodFRLWHqVl6Blgqlpssrfrrnw0-ZsZxWy6bRG6onKCY1_zNK-6IMT_aF_ndOJLy_AMg"/>
+<div class="group relative">
+<div class="bg-surface-container-high text-on-surface px-4 py-3 rounded-2xl rounded-bl-none shadow-lg">
+<p class="text-body-md">Minimal. Thorne asked about implementation speed, but I assured him we could have the initial nodes live by Monday.</p>
+</div>
+<span class="text-[10px] text-outline mt-1 block">12:44 PM</span>
+</div>
+</div>
+<!-- Shared Media Card -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<div class="w-8 shrink-0"></div>
+<div class="bg-surface-container-high rounded-2xl overflow-hidden shadow-lg border border-outline-variant/10 w-72">
+<img alt="Server Infrastructure" class="w-full h-40 object-cover" data-alt="A high-tech server room with glowing blue and gold fiber optic cables. The atmosphere is crisp and highly technical, representing high-end digital infrastructure. The lighting is dark and professional, aligning with a premium security application aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgNeuUTD42hT3DL0ZjFjE2KwzGuHTtYq-X5ls-y2vprokbHPMjgpYN2ATpvHpxFAFnP_aoQuEI6oMKrBYqfaXPxaumUdcna9I3cX8jIf_ogQV8s5hlFAXTkxmgQWIcT-6_t6NHhz0kPIcN57zHAW97wf0_H3Hkh6JXoq4Z2SIEwPLfpRP0rFsa16ffunIHBw4lgYzVzON0KE_T1Q4cIUjdI-PA6o4ThBfrrEIjU-R_mPFmApq_82r6poJRfR7h-CwxyP1JC46qzCY"/>
+<div class="p-4">
+<h4 class="font-label-lg text-label-lg text-on-surface">System Topology.pdf</h4>
+<p class="text-label-sm text-outline">2.4 MB • Encrypted Document</p>
+<button class="mt-3 w-full bg-surface-container-highest py-2 rounded-lg text-primary text-label-sm font-bold flex items-center justify-center gap-2 hover:bg-primary-container hover:text-on-primary-container transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+                            Download
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<footer class="p-container-padding glass-panel z-10">
+<div class="max-w-4xl mx-auto bg-surface-container-highest/40 rounded-2xl p-2 flex items-end gap-2 border border-outline-variant/10 focus-within:border-primary/30 transition-all shadow-2xl">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-variant/20 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-body-md py-2 px-2 resize-none max-h-32 placeholder:text-outline/40" placeholder="Type a message..." rows="1"></textarea>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-variant/20 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="mood">mood</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-on-primary shadow-[0_0_15px_rgba(212,175,55,0.4)] active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+</footer>
+</section>
+<!-- Contextual FAB (Hidden on desktop by default but generated for compliance) -->
+<!-- Suppressed based on "Desktop Dashboard" intent but logic included in script if needed -->
+<button class="hidden md:flex fixed bottom-stack-lg right-stack-lg w-14 h-14 bg-primary-container text-on-primary-container rounded-full items-center justify-center shadow-2xl hover:scale-105 active:scale-90 transition-all z-[60]" id="globalFab">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</button>
+<script>
+        // Auto-expand textarea
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Simple interactive effect for chat list
+        const chatItems = document.querySelectorAll('.chat-item');
+        chatItems.forEach(item => {
+            item.addEventListener('click', () => {
+                chatItems.forEach(i => i.classList.remove('bg-surface-variant/10', 'border-l-4', 'border-primary'));
+                item.classList.add('bg-surface-variant/10', 'border-l-4', 'border-primary');
+            });
+        });
+
+        // Escape to clear focus
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                textarea.blur();
+            }
+        });
+    </script>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enigma - Active Video Call</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#3e2e05",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#574500",
+                        "surface-dim": "#131313",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "error-container": "#93000a",
+                        "surface-tint": "#e9c349",
+                        "tertiary": "#d0cdcd",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-surface-variant": "#d0c5af",
+                        "on-primary-fixed": "#241a00",
+                        "on-tertiary-fixed": "#1b1b1c",
+                        "surface-bright": "#393939",
+                        "on-secondary-fixed": "#251a00",
+                        "surface-container": "#201f1f",
+                        "on-surface": "#e5e2e1",
+                        "primary-fixed": "#ffe088",
+                        "on-tertiary-container": "#454544",
+                        "on-tertiary": "#303030",
+                        "background": "#131313",
+                        "inverse-surface": "#e5e2e1",
+                        "secondary-fixed-dim": "#dec38d",
+                        "tertiary-container": "#b4b2b2",
+                        "on-primary-container": "#554300",
+                        "secondary": "#dec38d",
+                        "primary": "#f2ca50",
+                        "primary-container": "#d4af37",
+                        "on-primary": "#3c2f00",
+                        "surface-container-low": "#1c1b1b",
+                        "surface": "#131313",
+                        "inverse-on-surface": "#313030",
+                        "inverse-primary": "#735c00",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed-dim": "#e9c349",
+                        "outline-variant": "#4d4635",
+                        "on-secondary-container": "#cfb580",
+                        "outline": "#99907c",
+                        "on-secondary-fixed-variant": "#56441a",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-variant": "#353534",
+                        "secondary-fixed": "#fbdfa7",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "secondary-container": "#59471c",
+                        "surface-container-highest": "#353534",
+                        "surface-container-high": "#2a2a2a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "stack-sm": "8px",
+                        "container-padding": "24px",
+                        "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "label-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .video-matte-overlay {
+            background: linear-gradient(to bottom, rgba(19, 19, 19, 0.4) 0%, rgba(19, 19, 19, 0) 20%, rgba(19, 19, 19, 0) 80%, rgba(19, 19, 19, 0.6) 100%);
+        }
+        .control-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(30, 30, 30, 0.8);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="h-screen w-full flex flex-col relative">
+<!-- Header Section (TopAppBar Anchor Logic) -->
+<header class="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-container-padding h-16 pointer-events-none">
+<div class="flex items-center gap-unit pointer-events-auto">
+<span class="font-display-lg text-display-lg text-primary tracking-tighter opacity-90">Enigma</span>
+</div>
+<div class="flex items-center gap-stack-md pointer-events-auto">
+<div class="flex flex-col items-end">
+<span class="font-label-lg text-label-lg text-on-surface">Julian Sterling</span>
+<span class="text-[10px] uppercase tracking-[0.2em] text-primary-container">Secure Encrypted Link</span>
+</div>
+<div class="w-10 h-10 rounded-full border border-primary-container/20 overflow-hidden">
+<img alt="Julian Sterling" class="w-full h-full object-cover" data-alt="A professional headshot of a mature man with a refined appearance, set against a dark, moody studio background. The lighting is low-key, highlighting subtle facial features with a warm, bronze-toned glow. The overall aesthetic is high-end, corporate, and minimalist, mirroring the luxury dark UI of the application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqJ_FbvvUHmGOiEmpj757HhLbZ-FalEUxl2VpRJn7xZ_cBygSZUoMw0jqdwtnxOwvR0GYy0vNX0a2ST46dElCFSIU9LEjlU30Y3-qczaS-wZbZL1-pmOhMpAMHJ2heZI1zWgiCiApR6BFVItMSc_LB6Zox6PTR5wapO1Xbwr6i7Zno8s1gfz1BnbJqFCZ_jtbXnWnJMLvD7_vVMqacR869uCaAn5KqvMZAKNzccd8c9APQnQQ42p1p7CWN8feB2RPd-dyxER3XhrM"/>
+</div>
+</div>
+</header>
+<!-- Main Full-Screen Video Canvas -->
+<main class="flex-grow relative w-full h-full overflow-hidden bg-background">
+<!-- Remote Participant Video -->
+<div class="absolute inset-0 z-0">
+<img alt="Main Video Stream" class="w-full h-full object-cover grayscale-[0.2] brightness-75" data-alt="A cinematic, high-definition close-up of a professional woman during a video call. She is in a sophisticated, dimly lit home office with soft ambient gold lighting in the background. The mood is focused and intimate, with a shallow depth of field. The image has a matte finish and a palette of deep charcoals and warm metallic accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJZRATySOolKNrLdXvU47IFYpUILD1K7D0704zj0_0nKNFgAYsfOKEyQkDRwqmHgn27VOybgkZceSqiN1LFTRnAS3YDvNo7vw5YDTiARw5PYlw6QPuy_nMY5AEERY8li4dM_e5k9xJscS-aNPqaJrnTBE3_q8Sjzjt2C3OqmrphLETg1NmVbEqQ5LeWDhM4LG6HpY8-ndnPIVJZRzBAlooGpvYh1MR4ouh7Ow0N8mFXe10Mm2F2ZN3poUiZwu77yvySzWH9u2cQWk"/>
+<div class="absolute inset-0 video-matte-overlay pointer-events-none"></div>
+</div>
+<!-- Participant Info Overlay (Bottom Left) -->
+<div class="absolute bottom-32 left-gutter z-20 flex flex-col gap-unit">
+<div class="flex items-center gap-stack-sm bg-surface-container/60 backdrop-blur-md px-stack-md py-stack-sm rounded-xl border border-white/5">
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse shadow-[0_0_8px_rgba(212,175,55,0.6)]"></div>
+<span class="font-label-lg text-label-lg text-on-surface">Elena V.</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant opacity-70">12:45</span>
+</div>
+</div>
+<!-- Inset Self-View -->
+<div class="absolute top-24 right-gutter z-30 w-32 md:w-48 aspect-[3/4] rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 group cursor-pointer transition-transform duration-500 hover:scale-[1.02]">
+<img alt="Self View" class="w-full h-full object-cover" data-alt="A self-view video inset showing a professional man in a dark environment. The lighting is soft and directional, creating a high-end portrait feel. The scene is quiet and focused, with no distracting elements, maintaining the dark luxury aesthetic of the communication app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8C5PZAl7AGlBLQSrQNsir2Acn3J0M_7EQvFQ6be1Og8Sf6iHiF8UUXxDdfPxBAqINIeSKCAPxVkvZSlacQ9Tri_AyIuAzd_Ms-qGubvM9jm-Swdic94wB3WFh6SGVPHtdde52xJmXGgcFWc5mNqsYGIl0mAVeFfgD_aB4AOwoa8Xk283OmYpQ28QGfOrqhtF7i8QP3a4V4Ks8D69V57ysMy3Nvy3sONL1aXdbEpOwm73k4_WuwlmEL_to3hBYfxgvzSreuOJxddE"/>
+<div class="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg">
+<span class="text-[10px] font-medium text-on-surface uppercase tracking-wider">You</span>
+</div>
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<!-- Floating Call Controls -->
+<div class="absolute bottom-stack-lg left-1/2 -translate-x-1/2 z-40 w-full max-w-lg px-gutter">
+<div class="control-blur rounded-[2rem] p-stack-sm flex items-center justify-between gap-stack-md shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/5">
+<!-- Secondary Actions Cluster -->
+<div class="flex items-center gap-unit ml-stack-sm">
+<button class="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-bright/20 hover:text-on-surface transition-all active:scale-90" title="Switch Camera">
+<span class="material-symbols-outlined text-[24px]">flip_camera_ios</span>
+</button>
+<button class="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-bright/20 hover:text-on-surface transition-all active:scale-90" title="Participants">
+<span class="material-symbols-outlined text-[24px]">group</span>
+</button>
+</div>
+<!-- Primary Control Cluster -->
+<div class="flex items-center gap-stack-md">
+<!-- Mic Toggle -->
+<button class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-primary-container shadow-inner border border-white/5 hover:bg-surface-variant transition-all active:scale-90" id="mic-toggle">
+<span class="material-symbols-outlined text-[28px]">mic</span>
+</button>
+<!-- Camera Toggle -->
+<button class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-primary-container shadow-inner border border-white/5 hover:bg-surface-variant transition-all active:scale-90" id="cam-toggle">
+<span class="material-symbols-outlined text-[28px]">videocam</span>
+</button>
+<!-- End Call -->
+<button class="w-14 h-14 rounded-full bg-error-container flex items-center justify-center text-on-error-container shadow-lg hover:brightness-110 transition-all active:scale-90 active:opacity-80">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">call_end</span>
+</button>
+</div>
+<!-- Settings/More Cluster -->
+<div class="flex items-center gap-unit mr-stack-sm">
+<button class="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-bright/20 hover:text-on-surface transition-all active:scale-90" title="Share Screen">
+<span class="material-symbols-outlined text-[24px]">present_to_all</span>
+</button>
+<button class="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-bright/20 hover:text-on-surface transition-all active:scale-90" title="More Options">
+<span class="material-symbols-outlined text-[24px]">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Side Chat Drawer (Hidden by default for focus) -->
+<aside class="fixed right-0 top-0 h-full w-80 bg-surface-container/90 backdrop-blur-2xl z-50 transform translate-x-full transition-transform duration-500 ease-in-out border-l border-white/5" id="chat-drawer">
+<div class="p-gutter h-full flex flex-col">
+<div class="flex items-center justify-between mb-stack-lg">
+<h3 class="font-headline-md text-headline-md text-primary">Meeting Chat</h3>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="toggleChat()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-grow overflow-y-auto space-y-stack-md pr-2 custom-scrollbar">
+<!-- Chat Bubbles -->
+<div class="flex flex-col gap-1">
+<span class="text-[10px] text-on-surface-variant/60 ml-2">Elena V. • 12:44</span>
+<div class="bg-surface-variant p-stack-sm rounded-2xl rounded-tl-none max-w-[90%]">
+<p class="font-body-md text-body-md text-on-surface">Did you check the latest encryption protocols for the project?</p>
+</div>
+</div>
+<div class="flex flex-col gap-1 items-end">
+<span class="text-[10px] text-on-surface-variant/60 mr-2">You • 12:45</span>
+<div class="bg-primary-container text-on-primary-container p-stack-sm rounded-2xl rounded-tr-none max-w-[90%]">
+<p class="font-body-md text-body-md">Yes, reviewing them now. Everything seems secure.</p>
+</div>
+</div>
+</div>
+<div class="pt-stack-md">
+<div class="relative">
+<input class="w-full bg-background border-none rounded-xl py-3 px-4 text-on-surface focus:ring-1 focus:ring-primary-container placeholder:text-on-surface-variant/40" placeholder="Type a message..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary-container">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+<!-- Micro-interaction Buttons -->
+<div class="fixed bottom-32 right-gutter z-30 flex flex-col gap-stack-sm">
+<button class="w-12 h-12 rounded-full bg-surface-container/60 backdrop-blur-md flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors border border-white/5" onclick="toggleChat()">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+<script>
+        function toggleChat() {
+            const drawer = document.getElementById('chat-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        // Toggle micro-interactions for Mic/Cam
+        const micBtn = document.getElementById('mic-toggle');
+        const camBtn = document.getElementById('cam-toggle');
+
+        micBtn.addEventListener('click', () => {
+            const icon = micBtn.querySelector('.material-symbols-outlined');
+            if (icon.innerText === 'mic') {
+                icon.innerText = 'mic_off';
+                micBtn.classList.add('text-error');
+                micBtn.classList.remove('text-primary-container');
+            } else {
+                icon.innerText = 'mic';
+                micBtn.classList.remove('text-error');
+                micBtn.classList.add('text-primary-container');
+            }
+        });
+
+        camBtn.addEventListener('click', () => {
+            const icon = camBtn.querySelector('.material-symbols-outlined');
+            if (icon.innerText === 'videocam') {
+                icon.innerText = 'videocam_off';
+                camBtn.classList.add('text-error');
+                camBtn.classList.remove('text-primary-container');
+            } else {
+                icon.innerText = 'videocam';
+                camBtn.classList.remove('text-error');
+                camBtn.classList.add('text-primary-container');
+            }
+        });
+
+        // Hide UI on inactivity (Atmospheric Effect)
+        let timeout;
+        const hideUI = () => {
+            document.querySelectorAll('header, .fixed.bottom-stack-lg, .fixed.bottom-32').forEach(el => {
+                el.style.opacity = '0';
+                el.style.pointerEvents = 'none';
+                el.style.transition = 'opacity 0.8s ease';
+            });
+        };
+
+        const showUI = () => {
+            document.querySelectorAll('header, .fixed.bottom-stack-lg, .fixed.bottom-32').forEach(el => {
+                el.style.opacity = '1';
+                el.style.pointerEvents = 'auto';
+            });
+            clearTimeout(timeout);
+            timeout = setTimeout(hideUI, 5000);
+        };
+
+        window.addEventListener('mousemove', showUI);
+        window.addEventListener('touchstart', showUI);
+        timeout = setTimeout(hideUI, 5000);
+    </script>
+</body></html>
+
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Enigma | Conversations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #131313;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(115, 95, 50, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(115, 95, 50, 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(115, 95, 50, 0.5);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#3e2e05",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#574500",
+                        "surface-dim": "#131313",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "error-container": "#93000a",
+                        "surface-tint": "#e9c349",
+                        "tertiary": "#d0cdcd",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-surface-variant": "#d0c5af",
+                        "on-primary-fixed": "#241a00",
+                        "on-tertiary-fixed": "#1b1b1c",
+                        "surface-bright": "#393939",
+                        "on-secondary-fixed": "#251a00",
+                        "surface-container": "#201f1f",
+                        "on-surface": "#e5e2e1",
+                        "primary-fixed": "#ffe088",
+                        "on-tertiary-container": "#454544",
+                        "on-tertiary": "#303030",
+                        "background": "#131313",
+                        "inverse-surface": "#e5e2e1",
+                        "secondary-fixed-dim": "#dec38d",
+                        "tertiary-container": "#b4b2b2",
+                        "on-primary-container": "#554300",
+                        "secondary": "#dec38d",
+                        "primary-container": "#d4af37",
+                        "on-primary": "#3c2f00",
+                        "surface-container-low": "#1c1b1b",
+                        "surface": "#131313",
+                        "inverse-on-surface": "#313030",
+                        "inverse-primary": "#735c00",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed-dim": "#e9c349",
+                        "outline-variant": "#4d4635",
+                        "on-secondary-container": "#cfb580",
+                        "outline": "#99907c",
+                        "primary": "#f2ca50",
+                        "on-secondary-fixed-variant": "#56441a",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-variant": "#353534",
+                        "secondary-fixed": "#fbdfa7",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "secondary-container": "#59471c",
+                        "surface-container-highest": "#353534",
+                        "surface-container-high": "#2a2a2a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "stack-sm": "8px",
+                        "container-padding": "24px",
+                        "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "label-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col selection:bg-primary/30">
+<!-- TopAppBar -->
+<header class="bg-background dark:bg-background flex justify-between items-center w-full px-container-padding h-16 docked full-width top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high ring-1 ring-primary/20 transition-all active:opacity-80">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A sophisticated close-up portrait of a high-end user avatar, styled with cinematic low-key lighting against a dark, matte charcoal background. The composition emphasizes elegance and professional status, utilizing a muted gold and deep bronze color palette. The aesthetic is clean, minimalist, and luxury-focused, reflecting a premium digital communication environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmZDBbjdpjU2Dg1jna9acAznHGSZhQkwtbopjWQmQF5NVx6q-BkNMI9_EBbNDhmXndApn67m7IuQ5dC9FDnzmoAhVTYuRUTbvk_GUzp0b1szu-IKAnJKjkjHn2RIsWh2okO0_4tAfLpYHanywlHQNWSLwOMW1ICurx11xqTQycWqYwRFCrWPk-3GY9HxAlg9jcPLBReFYd6DUe-neaMSHB9dZ3EGaZ-WF1yMX9MBlvnrGBvPhcslmC17XIOY-_DQf5Ig_N02Jyqpg"/>
+</div>
+<h1 class="font-display-lg text-headline-md text-primary dark:text-primary tracking-tighter">Enigma</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/10 dark:hover:bg-surface-variant/10 transition-colors active:opacity-80">
+<span class="material-symbols-outlined text-primary" data-icon="settings">settings</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto custom-scrollbar px-gutter pb-32">
+<!-- Search Section -->
+<div class="mt-stack-sm mb-stack-md">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors" data-icon="search">search</span>
+</div>
+<input class="w-full h-12 bg-surface-container-lowest border-none rounded-xl pl-12 pr-4 text-body-md text-on-surface placeholder:text-outline focus:ring-1 focus:ring-primary/40 transition-all shadow-inner" placeholder="Search secure conversations" type="text"/>
+</div>
+</div>
+<!-- Conversation List -->
+<div class="space-y-unit">
+<!-- Active Conversation Item -->
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-surface-container-high shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all active:scale-95 group">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-variant">
+<img alt="Julian Sterling" class="w-full h-full object-cover" data-alt="Close-up professional avatar of a man with sharp features, lit by soft golden rim light against a deep matte black background. High-end editorial style photography, focusing on a sense of discretion and luxury. The color tones are warm bronze and rich charcoal, aligning with a premium corporate chat application aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByt22u1r4KC-EsA7fT2NG0dapuoFOgbs5GhtuxmarMnxw5BHZ3XRhe2HddE65zWeIsdkHFE-vsw7vRCzH-wXoRM264U-Yk4cLSvJeou-gCcMe2pel3x7gT61xqhz0BE7WyRTBRgEtPOnOSUH6isAWat1KU2tMHphyxdiIzUpbMKLCqMJRVx3sb0mKDK0_0rZOLSlw8GhS8wLk7vYjBWPjy7Lm2cbUIfkcdzHzlbEs4xPt6J2zOWl6__cKiKAtLL1fFQe_hSE5gtTs"/>
+</div>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary-container border-2 border-surface-container-high rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-label-lg text-on-surface truncate">Julian Sterling</h3>
+<span class="font-label-sm text-primary">10:42 AM</span>
+</div>
+<div class="flex justify-between items-center gap-2">
+<p class="font-body-md text-on-surface truncate pr-2">The architecture proposal is finalized. Let's...</p>
+<div class="bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full text-[10px] font-bold">2</div>
+</div>
+</div>
+</div>
+<!-- Standard Items -->
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-transparent hover:bg-surface-variant/5 transition-all active:scale-95">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-variant">
+<img alt="Aria Wells" class="w-full h-full object-cover" data-alt="A portrait of a professional woman in a minimalist architectural setting, captured in soft, diffused moody lighting. The visual style is dark luxury with matte finishes. The color palette is dominated by deep charcoals and subtle gold highlights on the face. This high-resolution avatar represents an elite, private communication platform user." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIV9AK9db8w4eA7oCfJ3Q5D3SYBl80c_ImJk3suMU4p_RhpQEbpXP2UtWC9uuJ75qT4YJoOY27l8MWfZg-OgDR09IMaQvxh1BcKpFR3L0eMElFKSQhdBmKOkiWL5tsImaJW5MOOr6liGAv_GTFz6ta2yGONEfTpTCz1ex1eAyY9r1P368OzPKHLasJgIdkcL6_zKmCZtH6TDiPpQdvX5E7Df0x5ZfGEfq-KXEO0pr67m5Hv9qBNXv3-Jv2FD5fqI-asbxohb1b2gE"/>
+</div>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-outline border-2 border-background rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-label-lg text-on-surface truncate">Aria Wells</h3>
+<span class="font-label-sm text-outline">Yesterday</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="done_all">done_all</span>
+<p class="font-body-md text-outline truncate">Please review the encryption logs.</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-transparent hover:bg-surface-variant/5 transition-all active:scale-95">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined text-headline-md" data-icon="groups">groups</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-label-lg text-on-surface truncate">Executive Board</h3>
+<span class="font-label-sm text-outline">Tue</span>
+</div>
+<p class="font-body-md text-outline truncate"><span class="text-secondary">Marcus:</span> Meeting rescheduled for 3 PM.</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-transparent hover:bg-surface-variant/5 transition-all active:scale-95">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-variant">
+<img alt="Elena Moretti" class="w-full h-full object-cover" data-alt="A cinematic, low-light studio portrait of a sophisticated individual. The lighting is dramatic and moody, casting soft shadows across the face. The background is a seamless matte black, and the skin tones are balanced with a hint of warm bronze light. The image exudes an air of mystery and high-end professional focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfoHPcb4cpHyFP3JTGo9MzE6kMnsrA3Y9G8yVqY7fRs3fb4g7q137k8JmuFITF74mnTgZd5kca5Q7x23hyJFEru68Fl2WrFZ8sgSZhGhDG3suYHGtD1lxB4n1Y2Zk_AHRENzb-YYA7Q5RrtNjLnV5EekQyEAForh8i6KMmxLrIw-6d5-0d8q8cATaUZAFesvjwBDIBdNKkDa6JCXDkeocxAofeURJx12JgASkLtmXXAaDxCPqVibEBBfsQJOiIT0lbhuQM7c0Pfao"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-label-lg text-on-surface truncate">Elena Moretti</h3>
+<span class="font-label-sm text-outline">Mon</span>
+</div>
+<p class="font-body-md text-outline truncate">Sent a voice message (0:42)</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-transparent hover:bg-surface-variant/5 transition-all active:scale-95">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-variant">
+<img alt="David S." class="w-full h-full object-cover" data-alt="A high-contrast, black and white portrait of an executive male, styled with a modern corporate aesthetic. The lighting is sharp and directional, highlighting the contours of the face against a dark, minimalist backdrop. The overall mood is one of serious intent and professional discretion, matching a dark-mode luxury chat interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvXVWLk3l08CEgdYqtK9cOZ0p7geyl1M2R_JgpIPB8PX9u5xz-xLnfztRXMIaFsqjv6vXcEUhfNLbefLs4YDkUyHTybgVm90b1t-exIitBn3Rh-_8YgqumCOJcEW8pkyabUQHmsG6KxYhMBkwD-AoYW7QFnl_Nhfj7aLcWvz8av7RkIk4sgqjFxHA3fgrukNQIce-enLnJxlo8fx08EnKH1CPpv7t2owaUZzPxV2ZHv-Gi0TrYQYEgofvHQy6fP6DvYTSxdh6-5Vk"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-label-lg text-on-surface truncate">David S.</h3>
+<span class="font-label-sm text-outline">Oct 12</span>
+</div>
+<p class="font-body-md text-outline truncate">The NDA is attached below.</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-transparent hover:bg-surface-variant/5 transition-all active:scale-95">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-variant">
+<img alt="K. Lehmann" class="w-full h-full object-cover" data-alt="A minimalist, high-end profile picture of a tech-savvy professional. The subject is wearing dark clothing that blends into a deep charcoal grey background. A soft gold light illuminates one side of the profile, creating a prestigious and focused atmosphere. The visual language is sophisticated and understated, designed for a luxury app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKwI4MmNS_IYSIUMIeg5rpX0gQ5ZUNYyBUrsDRGav8ReArWTZikl77ie8IJ-8EegbSpSqJSc37-CbbZG1RJUvab_UqtzvxQpvIo4Fccyq7npmWLrds5lBaDDohkFVXt3z-yYpdzeI2vzVHqSqohAXOqButAtm8Rm1WIsddaPVdrOlEwJGTN2GnsW2wI6qexaxzHSAlx-Eotnt_WmBQD1ZBkJJIj75moTRplzA64dyaKEwR09eIZRT3RFcFIgSxo9yahYVgiTN88Eg"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-label-lg text-on-surface truncate">K. Lehmann</h3>
+<span class="font-label-sm text-outline">Oct 10</span>
+</div>
+<p class="font-body-md text-outline truncate">Check out the new designs!</p>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary-container text-on-primary-container rounded-2xl shadow-[0_10px_30px_rgba(212,175,55,0.3)] flex items-center justify-center transition-transform active:scale-90 z-50">
+<span class="material-symbols-outlined text-[28px]" data-icon="edit">edit</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter py-stack-sm pb-safe bg-surface dark:bg-surface shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+<!-- Active Item: Chat -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container rounded-full p-unit transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="chat" data-weight="fill" style="font-variation-settings: 'FILL' 1;">chat</span>
+<span class="font-label-sm text-label-sm mt-1">Chats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline p-unit hover:text-primary dark:hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+<span class="font-label-sm text-label-sm mt-1">Calls</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline p-unit hover:text-primary dark:hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="contacts">contacts</span>
+<span class="font-label-sm text-label-sm mt-1">Contacts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline p-unit hover:text-primary dark:hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        // Subtle haptic-like interaction for chat items
+        document.querySelectorAll('main > div > div').forEach(item => {
+            item.addEventListener('touchstart', () => {
+                item.style.backgroundColor = 'rgba(53, 53, 52, 0.4)';
+            });
+            item.addEventListener('touchend', () => {
+                if(!item.classList.contains('bg-surface-container-high')) {
+                    item.style.backgroundColor = 'transparent';
+                } else {
+                    item.style.backgroundColor = '';
+                }
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.parentElement.classList.add('scale-[1.02]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.parentElement.classList.remove('scale-[1.02]');
+        });
+    </script>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enigma | Active Conversation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(115, 95, 50, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(115, 95, 50, 0.5);
+        }
+        .matte-glow {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .gold-glow:active {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#e5e2e1",
+                      "on-secondary": "#3e2e05",
+                      "on-error": "#690005",
+                      "on-primary-fixed-variant": "#574500",
+                      "surface-dim": "#131313",
+                      "on-tertiary-fixed-variant": "#474746",
+                      "error-container": "#93000a",
+                      "surface-tint": "#e9c349",
+                      "tertiary": "#d0cdcd",
+                      "tertiary-fixed": "#e5e2e1",
+                      "on-surface-variant": "#d0c5af",
+                      "on-primary-fixed": "#241a00",
+                      "on-tertiary-fixed": "#1b1b1c",
+                      "surface-bright": "#393939",
+                      "on-secondary-fixed": "#251a00",
+                      "surface-container": "#201f1f",
+                      "on-surface": "#e5e2e1",
+                      "primary-fixed": "#ffe088",
+                      "on-tertiary-container": "#454544",
+                      "on-tertiary": "#303030",
+                      "background": "#131313",
+                      "inverse-surface": "#e5e2e1",
+                      "secondary-fixed-dim": "#dec38d",
+                      "tertiary-container": "#b4b2b2",
+                      "on-primary-container": "#554300",
+                      "secondary": "#dec38d",
+                      "primary-container": "#d4af37",
+                      "on-primary": "#3c2f00",
+                      "surface-container-low": "#1c1b1b",
+                      "surface": "#131313",
+                      "inverse-on-surface": "#313030",
+                      "inverse-primary": "#735c00",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed-dim": "#e9c349",
+                      "outline-variant": "#4d4635",
+                      "on-secondary-container": "#cfb580",
+                      "outline": "#99907c",
+                      "primary": "#f2ca50",
+                      "on-secondary-fixed-variant": "#56441a",
+                      "error": "#ffb4ab",
+                      "surface-container-lowest": "#0e0e0e",
+                      "surface-variant": "#353534",
+                      "secondary-fixed": "#fbdfa7",
+                      "tertiary-fixed-dim": "#c8c6c5",
+                      "secondary-container": "#59471c",
+                      "surface-container-highest": "#353534",
+                      "surface-container-high": "#2a2a2a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "gutter": "16px",
+                      "unit": "8px",
+                      "stack-sm": "8px",
+                      "container-padding": "24px",
+                      "stack-lg": "32px"
+              },
+              "fontFamily": {
+                      "label-lg": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "display-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md overflow-hidden flex h-screen">
+<!-- Desktop Sidebar Navigation -->
+<aside class="hidden md:flex flex-col h-full w-80 bg-surface-container p-gutter border-r border-outline-variant/10 shadow-[10px_0_30px_rgba(0,0,0,0.5)] z-20">
+<div class="flex items-center gap-4 mb-stack-lg">
+<img alt="User Avatar" class="w-12 h-12 rounded-full bg-surface-variant object-cover" data-alt="A professional portrait of a high-end executive with sharp features, lit by cinematic, low-key side lighting that creates dramatic shadows. The background is a blurred, dark matte charcoal, maintaining a luxurious and secretive atmosphere consistent with a premium communication application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzOjz6saQU9ThiWZXAYSWFmqUgAmQ8ACphMnY1Y_xigOU-jOVZST19fqwqLQcA0bwKto4qmQFtB603pA7q7i5nmeN0NF8E5QmKWsGPkpGwS5Vi8UumxpvgN-cPV476VuMdlFAi2HBp_6tNlXq0GLipQ48CZPviX_bl84x7tpoUb2saXYRQGR3GvomJDaAiOwS3QfVANHM2WdAaSRTUssh8nAbHTE9mj37No-FZJU1PfX7pO2-JTKsFC90AFgEytGXZ_iVOPjQfzII"/>
+<div class="flex flex-col">
+<span class="font-headline-md text-on-surface">Julian Sterling</span>
+<span class="font-label-sm text-primary">Premium</span>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<div class="flex items-center gap-3 p-3 bg-primary-container/20 text-primary font-bold rounded-lg transition-all duration-300">
+<span class="material-symbols-outlined">message</span>
+<span class="font-body-md">Conversations</span>
+</div>
+<div class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-bright/50 transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">call</span>
+<span class="font-body-md">Calls</span>
+</div>
+<div class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-bright/50 transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">dialpad</span>
+<span class="font-body-md">Keypad</span>
+</div>
+<div class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-bright/50 transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">archive</span>
+<span class="font-body-md">Archive</span>
+</div>
+</nav>
+<div class="mt-auto pt-stack-lg">
+<div class="p-4 rounded-xl bg-surface-container-high matte-glow">
+<p class="font-label-sm text-on-surface-variant mb-2">Storage Usage</p>
+<div class="h-1 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-3/4"></div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Chat Canvas -->
+<main class="flex-1 flex flex-col relative h-full bg-background overflow-hidden">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-container-padding h-16 bg-background dark:bg-background z-30">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant active:scale-95 transition-transform">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="relative">
+<img alt="Contact" class="w-10 h-10 rounded-full bg-surface-variant" data-alt="A close-up high-resolution profile picture of an elegant woman with silver hair, looking directly at the camera with a calm, confident expression. The lighting is soft and diffused, highlighting the subtle textures of her skin against a dark, minimalist charcoal background, embodying a sense of mystery and exclusivity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCU59-YB8nSzaaUa7dqnCb0RTNcs3y8mSjq0plw3H-oz8oX1d-lbbAQR511AJgXTRpjaU7QuGuFnj2tSFHHjgS9uhlvJ-XjEG3elMMylIsQodEZzYX6Aj9no3Q9UhM5blzFxjVXucfA942XiLF-u9eLQTLVGppri-bgNX__jqEBXZM5JyAYDh2CqoWIuSjZOA4_g7ggqnfgI6Bh5wTqNhI68-OpqPmDq6hz58bVGFmMbRc6LTcE0Kmzu57ivdFiW4o6uoxDPDrI2Gs"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-background rounded-full"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-on-background leading-none">Elena Vance</span>
+<span class="font-label-sm text-primary">Secure Connection</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/10 transition-colors rounded-full active:opacity-80">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/10 transition-colors rounded-full active:opacity-80">
+<span class="material-symbols-outlined">videocam</span>
+</button>
+<div class="w-px h-6 bg-outline-variant/20 mx-2"></div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/10 transition-colors rounded-full active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Chat Area -->
+<section class="flex-1 overflow-y-auto px-container-padding py-stack-md flex flex-col gap-6" id="chat-scroller">
+<div class="flex justify-center my-stack-sm">
+<span class="bg-surface-variant/30 text-outline text-label-sm px-4 py-1 rounded-full uppercase tracking-widest">Today</span>
+</div>
+<!-- Incoming Message -->
+<div class="flex flex-col gap-1 max-w-[85%] md:max-w-[60%] self-start">
+<div class="bg-surface-container text-on-surface p-4 rounded-2xl rounded-tl-none matte-glow">
+<p class="font-body-md">The encryption keys have been updated. We are ready to proceed with the transfer protocols for the Singapore project.</p>
+</div>
+<span class="font-label-sm text-outline px-1">10:42 AM</span>
+</div>
+<!-- Outgoing Message -->
+<div class="flex flex-col gap-1 max-w-[85%] md:max-w-[60%] self-end">
+<div class="bg-[#735F32] text-white p-4 rounded-2xl rounded-tr-none shadow-[0_10px_20px_rgba(115,95,50,0.2)]">
+<p class="font-body-md">Understood. I've initialized the secure node. Standing by for the handshake signal.</p>
+</div>
+<div class="flex items-center justify-end gap-1 px-1">
+<span class="font-label-sm text-outline">10:45 AM</span>
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<!-- Incoming Message with Image -->
+<div class="flex flex-col gap-1 max-w-[85%] md:max-w-[60%] self-start">
+<div class="bg-surface-container text-on-surface p-2 rounded-2xl rounded-tl-none matte-glow">
+<div class="mb-2 overflow-hidden rounded-xl">
+<img alt="Map Data" class="w-full aspect-video object-cover" data-alt="A highly detailed, stylized tactical map of a modern metropolitan financial district, rendered in a dark, high-contrast palette of deep blacks, charcoals, and glowing gold data overlays. The image has a cinematic, tech-noir aesthetic with subtle light flares and sharp, vector-like precision, appearing as a secure intel document on a digital display." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6H4j9Ba4-wrvsObmrhbbsxSYiGxd4fm2j_eu4O7rDQyNkt8zM0ozYpqwXPJ4T2E7S3_CcCmAulFdVDOOrF667x1dhpqNZIXWh4ed9u-VlLUHubsfo-tjO1RaFVtlgCf2MxDK0bhxTKWGt85jK9gf0BeT216OFEJOfm8rSqP13GyPMYEfjeetyDi4gO2DDgPCkIshE6k1uk9Qjw9tK_RXOxE364yv9EuoEhEO_94-LILXLmuHcE2NyhM6PRPvtxQsDDxOH_I-zCdA"/>
+</div>
+<div class="px-2 pb-2">
+<p class="font-body-md">Here is the proposed meeting point. Extremely low visibility, high security coverage.</p>
+</div>
+</div>
+<span class="font-label-sm text-outline px-1">10:48 AM</span>
+</div>
+<!-- Typing Indicator -->
+<div class="flex gap-1 items-center self-start bg-surface-container/50 px-4 py-3 rounded-full opacity-0 transition-opacity duration-300" id="typing-indicator">
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></div>
+<div class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></div>
+</div>
+</section>
+<!-- Message Input -->
+<footer class="p-container-padding bg-background/80 backdrop-blur-md z-30">
+<div class="flex items-center gap-3 bg-surface-container-low p-2 rounded-full border border-outline-variant/10 focus-within:border-primary/30 transition-colors shadow-inner">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md placeholder:text-outline/50" placeholder="Send secure message..." type="text"/>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">face</span>
+</button>
+<button class="w-10 h-10 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center gold-glow active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+<!-- Safe area for mobile -->
+<div class="h-safe md:hidden"></div>
+</footer>
+<!-- Mobile Navigation Shell (Suppressed based on Transactional/Task-Focused context, but adding small hint if needed for ecosystem) -->
+</main>
+<script>
+        // Micro-interaction for typing indicator simulation
+        const chatScroller = document.getElementById('chat-scroller');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        function simulateTyping() {
+            setTimeout(() => {
+                typingIndicator.style.opacity = '1';
+                chatScroller.scrollTop = chatScroller.scrollHeight;
+                
+                setTimeout(() => {
+                    typingIndicator.style.opacity = '0';
+                }, 3000);
+            }, 2000);
+        }
+
+        // Auto-scroll to bottom on load
+        window.onload = () => {
+            chatScroller.scrollTop = chatScroller.scrollHeight;
+            simulateTyping();
+        };
+
+        // Subtle parallax effect on message bubbles on scroll
+        chatScroller.addEventListener('scroll', () => {
+            const bubbles = document.querySelectorAll('.matte-glow');
+            const scrollPos = chatScroller.scrollTop;
+            
+            bubbles.forEach((bubble, index) => {
+                const speed = 0.02;
+                const yPos = (scrollPos * speed * (index % 2 === 0 ? 1 : -1));
+                bubble.style.transform = `translateY(${yPos}px)`;
+            });
+        });
+    </script>
+</body></html>

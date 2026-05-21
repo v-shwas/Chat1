@@ -11,11 +11,11 @@ function hashName(name) {
 }
 
 const gradients = [
-  "linear-gradient(135deg, #6c63ff, #00d4ff)",
-  "linear-gradient(135deg, #ff6b9d, #6c63ff)",
-  "linear-gradient(135deg, #00d4ff, #22c55e)",
-  "linear-gradient(135deg, #6c63ff, #ff6b9d)",
-  "linear-gradient(135deg, #22c55e, #00d4ff)",
+  "linear-gradient(135deg, #f2ca50, #735f32)",
+  "linear-gradient(135deg, #b8c7bd, #4e5b51)",
+  "linear-gradient(135deg, #c28468, #5f4f2c)",
+  "linear-gradient(135deg, #ffe088, #7c7467)",
+  "linear-gradient(135deg, #88a879, #3f4b3d)",
 ];
 
 export default function Avatar({ src, name = "", size = "md", online, speaking }) {
@@ -47,7 +47,7 @@ export default function Avatar({ src, name = "", size = "md", online, speaking }
             width: px, height: px,
             borderRadius: "50%",
             objectFit: "cover",
-            border: speaking ? "2px solid transparent" : "1px solid var(--border)",
+            border: speaking ? "2px solid transparent" : "1px solid rgba(242,202,80,0.18)",
             position: "relative",
           }}
         />
@@ -59,10 +59,10 @@ export default function Avatar({ src, name = "", size = "md", online, speaking }
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "var(--font-mono)",
+          fontFamily: "var(--font-display)",
           fontSize: px * 0.35,
-          fontWeight: 500,
-          color: "#fff",
+          fontWeight: 700,
+          color: "#241a00",
           position: "relative",
         }}>
           {initials}
@@ -81,7 +81,7 @@ export default function Avatar({ src, name = "", size = "md", online, speaking }
           minHeight: 8,
           borderRadius: "50%",
           background: online ? "var(--green)" : "var(--text-muted)",
-          border: `2px solid var(--void)`,
+          border: `2px solid var(--deep)`,
           animation: online ? "pulse-dot 2s infinite" : "none",
         }} />
       )}

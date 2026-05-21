@@ -82,14 +82,14 @@ const App = () => {
         toastOptions={{
           duration: 3000,
           style: {
-            background: "rgba(255,255,255,0.06)",
-            backdropFilter: "blur(20px)",
+            background: "rgba(28,27,26,0.92)",
+            backdropFilter: "blur(18px)",
             color: "var(--text-primary)",
             border: "1px solid var(--glass-border)",
-            borderRadius: "var(--r-md)",
+            borderRadius: "var(--r-lg)",
             fontSize: "13px",
             fontFamily: "var(--font-body)",
-            fontWeight: "400",
+            fontWeight: "600",
             boxShadow: "var(--glass-shadow)",
           },
         }}

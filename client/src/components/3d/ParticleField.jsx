@@ -34,7 +34,7 @@ function Particles({ count = 4000 }) {
     <Points ref={ref} positions={positions} stride={3} frustumCulled={false}>
       <PointMaterial
         transparent
-        color="#6c63ff"
+        color="#d4af37"
         size={0.028}
         sizeAttenuation
         depthWrite={false}
@@ -72,22 +72,22 @@ function AmbientOrbs() {
       <mesh ref={orb1} position={[3.5, 0, -6]}>
         <sphereGeometry args={[1.4, 32, 32]} />
         <meshStandardMaterial
-          color="#6c63ff" emissive="#6c63ff" emissiveIntensity={0.5}
-          transparent opacity={0.10} roughness={0.1} metalness={0.9}
+          color="#d4af37" emissive="#d4af37" emissiveIntensity={0.35}
+          transparent opacity={0.08} roughness={0.4} metalness={0.7}
         />
       </mesh>
       <mesh ref={orb2} position={[-4.5, 1.5, -7]}>
         <sphereGeometry args={[1.0, 32, 32]} />
         <meshStandardMaterial
-          color="#00d4ff" emissive="#00d4ff" emissiveIntensity={0.6}
-          transparent opacity={0.08} roughness={0.1} metalness={0.9}
+          color="#b8c7bd" emissive="#b8c7bd" emissiveIntensity={0.32}
+          transparent opacity={0.055} roughness={0.4} metalness={0.7}
         />
       </mesh>
       <mesh ref={orb3} position={[1, -3, -4]}>
         <sphereGeometry args={[0.6, 32, 32]} />
         <meshStandardMaterial
-          color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.5}
-          transparent opacity={0.09}
+          color="#c28468" emissive="#c28468" emissiveIntensity={0.28}
+          transparent opacity={0.06}
         />
       </mesh>
     </>
@@ -134,15 +134,15 @@ export default function ParticleField() {
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         dpr={[1, 1.5]}
       >
-        <ambientLight intensity={0.15} />
-        <pointLight position={[10, 10, 10]} intensity={0.4} color="#6c63ff" />
-        <pointLight position={[-10, -5, -10]} intensity={0.2} color="#00d4ff" />
+        <ambientLight intensity={0.1} />
+        <pointLight position={[10, 10, 10]} intensity={0.28} color="#d4af37" />
+        <pointLight position={[-10, -5, -10]} intensity={0.14} color="#b8c7bd" />
         <CameraRig />
         <Particles />
         <AmbientOrbs />
         <EffectComposer>
           <Bloom
-            intensity={1.4}
+            intensity={0.8}
             luminanceThreshold={0.08}
             luminanceSmoothing={0.9}
             blendFunction={BlendFunction.ADD}

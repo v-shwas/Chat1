@@ -3,16 +3,20 @@ import useChatStore from "../../store/useChatStore";
 import useSocketStore from "../../store/useSocketStore";
 import useGroupStore from "../../store/useGroupStore";
 import Avatar from "../ui/Avatar";
-import { MessageSquare, Users, Plus, Search } from "lucide-react";
+import { Check, Edit3, MessageSquare, Plus, Search, ShieldCheck, Users } from "lucide-react";
 
 const Sidebar = () => {
   const { users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
-  const { onlineUsers } = useSocketStore();
+  const { onlineUsers, socket } = useSocketStore();
   const {
-    groups, selectedGroup, setSelectedGroup, getMyGroups,
-    createGroup, subscribeToGroupMessages, unsubscribeFromGroupMessages,
+    groups,
+    selectedGroup,
+    setSelectedGroup,
+    getMyGroups,
+    createGroup,
+    subscribeToGroupMessages,
+    unsubscribeFromGroupMessages,
   } = useGroupStore();
-  const { socket } = useSocketStore();
   const [activeTab, setActiveTab] = useState("chats");
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [groupName, setGroupName] = useState("");
@@ -42,7 +46,7 @@ const Sidebar = () => {
 
   const handleCreateGroup = async () => {
     if (!groupName.trim() || selectedMembers.length === 0) return;
-    await createGroup({ name: groupName, members: selectedMembers });
+    await createGroup({ name: groupName.trim(), members: selectedMembers });
     setGroupName("");
     setSelectedMembers([]);
     setShowCreateGroup(false);
@@ -54,24 +58,33 @@ const Sidebar = () => {
     );
   };
 
+  const query = searchQuery.toLowerCase();
   const filteredUsers = users.filter((u) =>
-    u.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.username.toLowerCase().includes(searchQuery.toLowerCase())
+    u.fullname.toLowerCase().includes(query) || u.username.toLowerCase().includes(query)
   );
-
-  const filteredGroups = groups.filter((g) =>
-    g.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredGroups = groups.filter((g) => g.name.toLowerCase().includes(query));
 
   return (
-    <div style={styles.sidebar}>
-      {/* ── Search ── */}
+    <aside className="app-sidebar" style={styles.sidebar}>
+      <header style={styles.header}>
+        <div>
+          <div style={styles.brandRow}>
+            <ShieldCheck size={18} />
+            <h1 style={styles.brand}>Aurum</h1>
+          </div>
+          <p style={styles.subtitle}>Secure conversations</p>
+        </div>
+        <button style={styles.composeBtn} title="New conversation">
+          <Edit3 size={17} />
+        </button>
+      </header>
+
       <div style={styles.searchSection}>
         <div style={styles.searchBar}>
-          <Search size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+          <Search size={15} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
           <input
             type="text"
-            placeholder="Search conversations..."
+            placeholder="Search threads"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={styles.searchInput}
@@ -79,7 +92,6 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* ── Tabs ── */}
       <div style={styles.tabs}>
         <button
           style={{ ...styles.tab, ...(activeTab === "chats" ? styles.tabActive : {}) }}
@@ -97,14 +109,13 @@ const Sidebar = () => {
         </button>
       </div>
 
-      {/* ── Content ── */}
       <div style={styles.content}>
         {activeTab === "chats" && (
           <div style={styles.list}>
             {isUsersLoading ? (
               [1, 2, 3, 4].map((i) => <div key={i} style={styles.skeleton} />)
             ) : filteredUsers.length === 0 ? (
-              <p style={styles.emptyText}>No users found</p>
+              <p style={styles.emptyText}>No matching contacts</p>
             ) : (
               filteredUsers.map((user) => {
                 const isOnline = onlineUsers.includes(user._id);
@@ -112,20 +123,17 @@ const Sidebar = () => {
                 return (
                   <button
                     key={user._id}
-                    style={{ ...styles.contactItem, ...(isActive ? styles.contactActive : {}) }}
+                    style={{ ...styles.threadItem, ...(isActive ? styles.threadActive : {}) }}
                     onClick={() => handleSelectUser(user)}
                   >
-                    {isActive && <div style={styles.activeBar} />}
-                    <Avatar
-                      src={user.profilePic}
-                      name={user.fullname}
-                      size="sm"
-                      online={isOnline}
-                    />
-                    <div style={styles.contactInfo}>
-                      <span style={styles.contactName}>{user.fullname}</span>
-                      <span style={styles.contactStatus}>
-                        {isOnline ? "Online" : "Offline"}
+                    <Avatar src={user.profilePic} name={user.fullname} size="md" online={isOnline} />
+                    <div style={styles.threadInfo}>
+                      <div style={styles.threadMeta}>
+                        <span style={styles.threadName}>{user.fullname}</span>
+                        <span style={styles.threadTime}>{isOnline ? "Now" : "Idle"}</span>
+                      </div>
+                      <span style={styles.threadPreview}>
+                        {isOnline ? "Secure connection available" : user.about || `@${user.username}`}
                       </span>
                     </div>
                   </button>
@@ -138,13 +146,8 @@ const Sidebar = () => {
         {activeTab === "groups" && (
           <>
             <div style={styles.groupHeader}>
-              <span style={styles.sectionLabel}>
-                Groups ({groups.length})
-              </span>
-              <button
-                style={styles.addBtn}
-                onClick={() => setShowCreateGroup(!showCreateGroup)}
-              >
+              <span style={styles.sectionLabel}>Private rooms ({groups.length})</span>
+              <button style={styles.addBtn} onClick={() => setShowCreateGroup(!showCreateGroup)}>
                 <Plus size={14} />
               </button>
             </div>
@@ -153,59 +156,59 @@ const Sidebar = () => {
               <div style={styles.createForm}>
                 <input
                   type="text"
-                  placeholder="Group name..."
+                  placeholder="Room name"
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
                   style={styles.createInput}
                 />
-                <span style={styles.sectionLabel}>Select Members</span>
+                <span style={styles.sectionLabel}>Invite members</span>
                 <div style={styles.memberPicker}>
-                  {users.map((user) => (
-                    <button
-                      key={user._id}
-                      style={{
-                        ...styles.memberChip,
-                        ...(selectedMembers.includes(user._id) ? styles.memberChipActive : {}),
-                      }}
-                      onClick={() => toggleMember(user._id)}
-                    >
-                      {user.fullname}
-                      {selectedMembers.includes(user._id) && " ✓"}
-                    </button>
-                  ))}
+                  {users.map((user) => {
+                    const selected = selectedMembers.includes(user._id);
+                    return (
+                      <button
+                        key={user._id}
+                        style={{ ...styles.memberChip, ...(selected ? styles.memberChipActive : {}) }}
+                        onClick={() => toggleMember(user._id)}
+                      >
+                        <span>{user.fullname}</span>
+                        {selected && <Check size={12} />}
+                      </button>
+                    );
+                  })}
                 </div>
                 <button
                   onClick={handleCreateGroup}
                   disabled={!groupName.trim() || selectedMembers.length === 0}
                   style={{
                     ...styles.createBtn,
-                    opacity: groupName.trim() && selectedMembers.length > 0 ? 1 : 0.4,
+                    opacity: groupName.trim() && selectedMembers.length > 0 ? 1 : 0.45,
                   }}
                 >
-                  Create Group
+                  Create room
                 </button>
               </div>
             )}
 
             <div style={styles.list}>
               {filteredGroups.length === 0 ? (
-                <p style={styles.emptyText}>No groups yet</p>
+                <p style={styles.emptyText}>No private rooms yet</p>
               ) : (
                 filteredGroups.map((group) => {
                   const isActive = selectedGroup?._id === group._id;
                   return (
                     <button
                       key={group._id}
-                      style={{ ...styles.contactItem, ...(isActive ? styles.contactActive : {}) }}
+                      style={{ ...styles.threadItem, ...(isActive ? styles.threadActive : {}) }}
                       onClick={() => handleSelectGroup(group)}
                     >
-                      {isActive && <div style={styles.activeBar} />}
-                      <Avatar name={group.name} size="sm" />
-                      <div style={styles.contactInfo}>
-                        <span style={styles.contactName}>{group.name}</span>
-                        <span style={styles.contactStatus}>
-                          {group.members?.length || 0} members
-                        </span>
+                      <Avatar name={group.name} size="md" />
+                      <div style={styles.threadInfo}>
+                        <div style={styles.threadMeta}>
+                          <span style={styles.threadName}>{group.name}</span>
+                          <span style={styles.threadTime}>{group.members?.length || 0}</span>
+                        </div>
+                        <span style={styles.threadPreview}>Encrypted room</span>
                       </div>
                     </button>
                   );
@@ -215,200 +218,256 @@ const Sidebar = () => {
           </>
         )}
       </div>
-    </div>
+    </aside>
   );
 };
 
 const styles = {
   sidebar: {
-    width: "280px",
-    minWidth: "280px",
+    width: "360px",
+    minWidth: "360px",
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    background: "rgba(3, 4, 10, 0.65)",
-    backdropFilter: "blur(24px)",
-    WebkitBackdropFilter: "blur(24px)",
-    borderRight: "1px solid var(--border)",
+    background: "rgba(28, 27, 26, 0.92)",
+    backdropFilter: "blur(18px)",
+    WebkitBackdropFilter: "blur(18px)",
+    borderRight: "1px solid rgba(153,144,124,0.10)",
+    boxShadow: "8px 0 28px rgba(0,0,0,0.25)",
   },
-  searchSection: { padding: "16px 14px 8px" },
+  header: {
+    height: "84px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "18px 22px 12px",
+  },
+  brandRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    color: "var(--accent)",
+  },
+  brand: {
+    fontFamily: "var(--font-display)",
+    fontSize: "26px",
+    lineHeight: 1,
+    fontWeight: 700,
+    letterSpacing: "-0.01em",
+    color: "var(--accent)",
+  },
+  subtitle: {
+    marginTop: "6px",
+    fontFamily: "var(--font-mono)",
+    fontSize: "11px",
+    color: "var(--text-muted)",
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
+  },
+  composeBtn: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "var(--r-full)",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
+    color: "var(--text-secondary)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchSection: { padding: "0 22px 14px" },
   searchBar: {
     display: "flex",
     alignItems: "center",
     gap: "10px",
-    padding: "8px 14px",
-    borderRadius: "var(--r-lg)",
-    background: "var(--surface)",
-    border: "1px solid var(--border)",
+    padding: "10px 14px",
+    borderRadius: "var(--r-xl)",
+    background: "rgba(53, 53, 52, 0.35)",
+    border: "1px solid transparent",
   },
   searchInput: {
     flex: 1,
     border: "none",
     background: "transparent",
     color: "var(--text-primary)",
-    fontSize: "13px",
+    fontSize: "14px",
     fontFamily: "var(--font-body)",
     outline: "none",
   },
   tabs: {
     display: "flex",
-    padding: "0 14px",
-    gap: "4px",
-    borderBottom: "1px solid var(--border)",
+    padding: "0 18px 8px",
+    gap: "8px",
   },
   tab: {
     flex: 1,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "6px",
+    gap: "7px",
     padding: "10px",
-    border: "none",
+    borderRadius: "var(--r-lg)",
+    border: "1px solid transparent",
     background: "transparent",
     color: "var(--text-muted)",
     fontSize: "13px",
     fontFamily: "var(--font-body)",
-    fontWeight: 500,
-    cursor: "pointer",
-    borderBottom: "2px solid transparent",
-    transition: "all var(--dur-normal) var(--ease-smooth)",
+    fontWeight: 600,
   },
   tabActive: {
     color: "var(--accent)",
-    borderBottomColor: "var(--accent)",
+    background: "var(--accent-dim)",
+    borderColor: "rgba(242,202,80,0.16)",
   },
-  content: { flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" },
-  list: { flex: 1, padding: "6px 8px" },
+  content: {
+    flex: 1,
+    overflowY: "auto",
+    display: "flex",
+    flexDirection: "column",
+  },
+  list: { flex: 1, padding: "4px 0 18px" },
   skeleton: {
-    height: "52px",
-    margin: "4px 6px",
-    borderRadius: "var(--r-md)",
-    background: "linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%)",
+    height: "68px",
+    margin: "4px 18px",
+    borderRadius: "var(--r-lg)",
+    background: "linear-gradient(90deg, rgba(53,53,52,0.25) 25%, rgba(80,72,52,0.28) 50%, rgba(53,53,52,0.25) 75%)",
     backgroundSize: "200% 100%",
     animation: "shimmer 1.5s infinite",
   },
-  contactItem: {
+  threadItem: {
     width: "100%",
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    padding: "10px 12px",
-    borderRadius: "var(--r-md)",
-    border: "1px solid transparent",
+    gap: "14px",
+    padding: "14px 22px",
+    border: "none",
+    borderLeft: "3px solid transparent",
     background: "transparent",
-    cursor: "pointer",
-    transition: "all var(--dur-normal) var(--ease-smooth)",
     textAlign: "left",
     color: "inherit",
-    position: "relative",
   },
-  contactActive: {
-    background: "var(--accent-dim)",
-    borderColor: "rgba(108,99,255,0.2)",
+  threadActive: {
+    background: "rgba(53,53,52,0.34)",
+    borderLeftColor: "var(--accent)",
   },
-  activeBar: {
-    position: "absolute",
-    left: 0,
-    top: "50%",
-    transform: "translateY(-50%)",
-    width: "3px",
-    height: "24px",
-    borderRadius: "0 2px 2px 0",
-    background: "var(--accent)",
+  threadInfo: {
+    flex: 1,
+    minWidth: 0,
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
   },
-  contactInfo: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 },
-  contactName: {
-    fontSize: "13px",
-    fontWeight: 500,
+  threadMeta: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    gap: "12px",
+  },
+  threadName: {
+    fontSize: "14px",
+    fontWeight: 700,
     color: "var(--text-primary)",
-    textOverflow: "ellipsis",
     overflow: "hidden",
     whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
   },
-  contactStatus: {
-    fontSize: "11px",
+  threadTime: {
+    fontFamily: "var(--font-mono)",
+    fontSize: "10px",
+    color: "var(--accent)",
+    flexShrink: 0,
+  },
+  threadPreview: {
+    fontSize: "13px",
     color: "var(--text-muted)",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
   },
   groupHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "12px 16px 4px",
+    padding: "14px 22px 6px",
   },
   sectionLabel: {
     fontFamily: "var(--font-mono)",
     fontSize: "11px",
     color: "var(--text-muted)",
-    letterSpacing: "0.03em",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
   },
   addBtn: {
-    width: "28px",
-    height: "28px",
-    borderRadius: "var(--r-sm)",
+    width: "30px",
+    height: "30px",
+    borderRadius: "var(--r-full)",
     border: "1px solid var(--border)",
     background: "var(--surface)",
     color: "var(--accent)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    cursor: "pointer",
   },
   createForm: {
-    padding: "8px 14px 12px",
+    margin: "8px 18px 10px",
+    padding: "14px",
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
-    borderBottom: "1px solid var(--border)",
+    gap: "10px",
+    borderRadius: "var(--r-xl)",
+    background: "rgba(19,19,19,0.64)",
+    border: "1px solid var(--border)",
   },
   createInput: {
     width: "100%",
-    padding: "8px 12px",
-    borderRadius: "var(--r-sm)",
+    padding: "10px 12px",
+    borderRadius: "var(--r-lg)",
     border: "1px solid var(--border)",
-    background: "var(--surface)",
+    background: "rgba(53,53,52,0.32)",
     color: "var(--text-primary)",
     fontSize: "13px",
     fontFamily: "var(--font-body)",
     outline: "none",
   },
   memberPicker: {
-    maxHeight: "100px",
+    maxHeight: "108px",
     overflowY: "auto",
     display: "flex",
     flexWrap: "wrap",
-    gap: "4px",
+    gap: "6px",
   },
   memberChip: {
-    padding: "4px 10px",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "5px",
+    padding: "5px 10px",
     borderRadius: "var(--r-full)",
     border: "1px solid var(--border)",
     background: "transparent",
     color: "var(--text-secondary)",
     fontSize: "11px",
     fontFamily: "var(--font-body)",
-    cursor: "pointer",
   },
   memberChipActive: {
     background: "var(--accent-dim)",
-    borderColor: "rgba(108,99,255,0.3)",
+    borderColor: "rgba(242,202,80,0.25)",
     color: "var(--accent)",
   },
   createBtn: {
-    padding: "8px 16px",
-    borderRadius: "var(--r-sm)",
+    padding: "10px 16px",
+    borderRadius: "var(--r-lg)",
     border: "none",
-    background: "linear-gradient(135deg, var(--accent), var(--cyan))",
-    color: "#fff",
+    background: "linear-gradient(135deg, var(--accent-soft), var(--accent-strong))",
+    color: "#241a00",
     fontFamily: "var(--font-body)",
-    fontSize: "12px",
-    fontWeight: 500,
-    cursor: "pointer",
+    fontSize: "13px",
+    fontWeight: 700,
   },
   emptyText: {
     textAlign: "center",
     color: "var(--text-muted)",
     fontSize: "13px",
-    padding: "24px",
+    padding: "28px",
   },
 };
 
