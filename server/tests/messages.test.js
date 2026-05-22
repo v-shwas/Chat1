@@ -158,6 +158,22 @@ describe("POST /api/message/send/:id", () => {
     expect(res.body.error).toMatch(/message content or file required/i);
   });
 
+  it("returns 404 when the receiver does not exist", async () => {
+    const { token } = await createTestUser({
+      username: "sndrMissingReceiver",
+      email: "sndrMissingReceiver@example.com",
+    });
+    const missingReceiverId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+      .post(`/api/message/send/${missingReceiverId}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ message: "Nobody should receive this" });
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toMatch(/receiver not found/i);
+  });
+
   it("sends a second message in the existing conversation", async () => {
     const { user: sender, token } = await createTestUser({
       username: "sndr4",
@@ -281,6 +297,33 @@ describe("POST /api/message/react/:id", () => {
     expect(res.status).toBe(200);
     expect(res.body.reactions).toHaveLength(1);
     expect(res.body.reactions[0].emoji).toBe("👍");
+  });
+
+  it("returns 403 when a non-participant reacts to a direct message", async () => {
+    const { token: senderToken } = await createTestUser({
+      username: "reactSecSender",
+      email: "reactSecSender@example.com",
+    });
+    const { user: receiver } = await createTestUser({
+      username: "reactSecReceiver",
+      email: "reactSecReceiver@example.com",
+    });
+    const { token: outsiderToken } = await createTestUser({
+      username: "reactSecOutsider",
+      email: "reactSecOutsider@example.com",
+    });
+
+    const sendRes = await request(app)
+      .post(`/api/message/send/${receiver._id}`)
+      .set("Authorization", `Bearer ${senderToken}`)
+      .send({ message: "Private message" });
+
+    const res = await request(app)
+      .post(`/api/message/react/${sendRes.body._id}`)
+      .set("Authorization", `Bearer ${outsiderToken}`)
+      .send({ emoji: "👍" });
+
+    expect(res.status).toBe(403);
   });
 
   it("removes a reaction when an empty emoji is sent", async () => {

@@ -1,38 +1,97 @@
+import mongoose from "mongoose";
 import Group from "../models/groupModel.js";
 import Message from "../models/msgModel.js";
+import User from "../models/userModel.js";
 import { io, getReceiverSocketId } from "../socket/socket.js";
 
-// Create a new group
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+const sameId = (a, b) => a?.toString() === b?.toString();
+const includesId = (ids, id) => ids.some((item) => sameId(item, id));
+
+const populateGroup = (id) =>
+  Group.findById(id)
+    .populate("members", "fullname username profilePic")
+    .populate("admins", "fullname username profilePic");
+
+const findGroup = async (id, res) => {
+  if (!isValidId(id)) {
+    res.status(400).json({ error: "Invalid group id" });
+    return null;
+  }
+
+  const group = await Group.findById(id);
+  if (!group) {
+    res.status(404).json({ error: "Group not found" });
+    return null;
+  }
+
+  return group;
+};
+
+const requireMember = (group, userId, res) => {
+  if (!includesId(group.members, userId)) {
+    res.status(403).json({ error: "Not a member of this group" });
+    return false;
+  }
+  return true;
+};
+
+const requireAdmin = (group, userId, res) => {
+  if (!includesId(group.admins, userId)) {
+    res.status(403).json({ error: "Only admins can manage this group" });
+    return false;
+  }
+  return true;
+};
+
+const validateUserIds = async (ids, res) => {
+  const uniqueIds = [...new Set(ids.map((id) => id?.toString()))];
+  if (uniqueIds.some((id) => !isValidId(id))) {
+    res.status(400).json({ error: "Invalid member id" });
+    return null;
+  }
+
+  const count = await User.countDocuments({ _id: { $in: uniqueIds } });
+  if (count !== uniqueIds.length) {
+    res.status(400).json({ error: "One or more members do not exist" });
+    return null;
+  }
+
+  return uniqueIds;
+};
+
 export const createGroup = async (req, res) => {
   try {
     const { name, description, members } = req.body;
     const creatorId = req.user._id;
+    const trimmedName = typeof name === "string" ? name.trim() : "";
 
-    if (!name || !members || members.length < 1) {
+    if (!trimmedName || !Array.isArray(members) || members.length < 1) {
       return res.status(400).json({ error: "Group name and at least 1 member required" });
     }
 
-    // Include creator in members and admins
-    const allMembers = [...new Set([creatorId.toString(), ...members])];
+    if (trimmedName.length > 80) {
+      return res.status(400).json({ error: "Group name must be 80 characters or fewer" });
+    }
+
+    const memberIds = await validateUserIds(members, res);
+    if (!memberIds) return;
+
+    const allMembers = [...new Set([creatorId.toString(), ...memberIds])];
 
     const group = await Group.create({
-      name,
-      description: description || "",
+      name: trimmedName,
+      description: typeof description === "string" ? description.trim().slice(0, 240) : "",
       creator: creatorId,
       admins: [creatorId],
       members: allMembers,
     });
 
-    const populated = await Group.findById(group._id)
-      .populate("members", "fullname username profilePic")
-      .populate("admins", "fullname username profilePic");
+    const populated = await populateGroup(group._id);
 
-    // Notify all members via socket
     allMembers.forEach((memberId) => {
       const socketId = getReceiverSocketId(memberId);
-      if (socketId) {
-        io.to(socketId).emit("newGroup", populated);
-      }
+      if (socketId) io.to(socketId).emit("newGroup", populated);
     });
 
     res.status(201).json(populated);
@@ -42,7 +101,6 @@ export const createGroup = async (req, res) => {
   }
 };
 
-// Get all groups the user is a member of
 export const getMyGroups = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -58,39 +116,35 @@ export const getMyGroups = async (req, res) => {
   }
 };
 
-// Get a single group
 export const getGroup = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.id)
-      .populate("members", "fullname username profilePic")
-      .populate("admins", "fullname username profilePic");
+    const group = await findGroup(req.params.id, res);
+    if (!group || !requireMember(group, req.user._id, res)) return;
 
-    if (!group) return res.status(404).json({ error: "Group not found" });
-    res.status(200).json(group);
+    const populated = await populateGroup(group._id);
+    res.status(200).json(populated);
   } catch (error) {
     console.log("Error in getGroup:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Send a message in a group
 export const sendGroupMessage = async (req, res) => {
   try {
     const { message } = req.body;
     const { id: groupId } = req.params;
     const senderId = req.user._id;
+    const text = typeof message === "string" ? message.trim() : "";
 
-    const group = await Group.findById(groupId);
-    if (!group) return res.status(404).json({ error: "Group not found" });
+    if (!text) return res.status(400).json({ error: "Message is required" });
 
-    if (!group.members.includes(senderId)) {
-      return res.status(403).json({ error: "Not a member of this group" });
-    }
+    const group = await findGroup(groupId, res);
+    if (!group || !requireMember(group, senderId, res)) return;
 
     const newMsg = new Message({
       senderId,
       groupId,
-      message,
+      message: text,
       messageType: "text",
     });
 
@@ -100,7 +154,6 @@ export const sendGroupMessage = async (req, res) => {
     const populatedMsg = await Message.findById(newMsg._id)
       .populate("senderId", "fullname username profilePic");
 
-    // Emit to the group room
     io.to(`group_${groupId}`).emit("newGroupMessage", {
       groupId,
       message: populatedMsg,
@@ -113,56 +166,54 @@ export const sendGroupMessage = async (req, res) => {
   }
 };
 
-// Get messages for a group
 export const getGroupMessages = async (req, res) => {
   try {
     const { id: groupId } = req.params;
-    const group = await Group.findById(groupId).populate({
+    const group = await findGroup(groupId, res);
+    if (!group || !requireMember(group, req.user._id, res)) return;
+
+    const populated = await Group.findById(groupId).populate({
       path: "messages",
       populate: { path: "senderId", select: "fullname username profilePic" },
     });
 
-    if (!group) return res.status(404).json({ error: "Group not found" });
-    res.status(200).json(group.messages);
+    res.status(200).json(populated.messages);
   } catch (error) {
     console.log("Error in getGroupMessages:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Add members to group
 export const addMembers = async (req, res) => {
   try {
     const { members } = req.body;
     const { id: groupId } = req.params;
     const userId = req.user._id;
 
-    const group = await Group.findById(groupId);
-    if (!group) return res.status(404).json({ error: "Group not found" });
-
-    if (!group.admins.includes(userId)) {
-      return res.status(403).json({ error: "Only admins can add members" });
+    if (!Array.isArray(members) || members.length === 0) {
+      return res.status(400).json({ error: "At least one member is required" });
     }
 
-    const newMembers = members.filter((m) => !group.members.includes(m));
-    group.members.push(...newMembers);
-    await group.save();
+    const group = await findGroup(groupId, res);
+    if (!group || !requireAdmin(group, userId, res)) return;
 
-    const populated = await Group.findById(groupId)
-      .populate("members", "fullname username profilePic")
-      .populate("admins", "fullname username profilePic");
+    const memberIds = await validateUserIds(members, res);
+    if (!memberIds) return;
 
-    // Notify new members
+    const newMembers = memberIds.filter((memberId) => !includesId(group.members, memberId));
+    if (newMembers.length > 0) {
+      group.members.push(...newMembers);
+      await group.save();
+    }
+
+    const populated = await populateGroup(groupId);
+
     newMembers.forEach((memberId) => {
       const socketId = getReceiverSocketId(memberId);
-      if (socketId) {
-        io.to(socketId).emit("addedToGroup", populated);
-      }
+      if (socketId) io.to(socketId).emit("addedToGroup", populated);
     });
 
-    // Notify group room
     io.to(`group_${groupId}`).emit("groupUpdated", populated);
-
     res.status(200).json(populated);
   } catch (error) {
     console.log("Error in addMembers:", error.message);
@@ -170,35 +221,41 @@ export const addMembers = async (req, res) => {
   }
 };
 
-// Remove member from group
 export const removeMember = async (req, res) => {
   try {
     const { memberId } = req.body;
     const { id: groupId } = req.params;
     const userId = req.user._id;
 
-    const group = await Group.findById(groupId);
-    if (!group) return res.status(404).json({ error: "Group not found" });
-
-    if (!group.admins.includes(userId)) {
-      return res.status(403).json({ error: "Only admins can remove members" });
+    if (!isValidId(memberId)) {
+      return res.status(400).json({ error: "Invalid member id" });
     }
 
-    group.members = group.members.filter((m) => m.toString() !== memberId);
-    group.admins = group.admins.filter((a) => a.toString() !== memberId);
+    const group = await findGroup(groupId, res);
+    if (!group || !requireAdmin(group, userId, res)) return;
+
+    if (!includesId(group.members, memberId)) {
+      return res.status(400).json({ error: "User is not a member of this group" });
+    }
+
+    if (sameId(group.creator, memberId)) {
+      return res.status(400).json({ error: "Group creator cannot be removed" });
+    }
+
+    const remainingAdmins = group.admins.filter((adminId) => !sameId(adminId, memberId));
+    if (remainingAdmins.length === 0) {
+      return res.status(400).json({ error: "Group must have at least one admin" });
+    }
+
+    group.members = group.members.filter((member) => !sameId(member, memberId));
+    group.admins = remainingAdmins;
     await group.save();
 
-    const populated = await Group.findById(groupId)
-      .populate("members", "fullname username profilePic")
-      .populate("admins", "fullname username profilePic");
-
+    const populated = await populateGroup(groupId);
     io.to(`group_${groupId}`).emit("groupUpdated", populated);
 
-    // Notify removed member
     const socketId = getReceiverSocketId(memberId);
-    if (socketId) {
-      io.to(socketId).emit("removedFromGroup", groupId);
-    }
+    if (socketId) io.to(socketId).emit("removedFromGroup", groupId);
 
     res.status(200).json(populated);
   } catch (error) {
@@ -207,20 +264,29 @@ export const removeMember = async (req, res) => {
   }
 };
 
-// Leave group
 export const leaveGroup = async (req, res) => {
   try {
     const { id: groupId } = req.params;
     const userId = req.user._id;
 
-    const group = await Group.findById(groupId);
-    if (!group) return res.status(404).json({ error: "Group not found" });
+    const group = await findGroup(groupId, res);
+    if (!group || !requireMember(group, userId, res)) return;
 
-    group.members = group.members.filter((m) => m.toString() !== userId.toString());
-    group.admins = group.admins.filter((a) => a.toString() !== userId.toString());
+    group.members = group.members.filter((member) => !sameId(member, userId));
+    group.admins = group.admins.filter((admin) => !sameId(admin, userId));
+
+    if (group.members.length === 0) {
+      await Group.findByIdAndDelete(groupId);
+      return res.status(200).json({ message: "Left group successfully" });
+    }
+
+    if (group.admins.length === 0) {
+      group.admins = [group.members[0]];
+    }
+
     await group.save();
-
-    io.to(`group_${groupId}`).emit("groupUpdated", group);
+    const populated = await populateGroup(groupId);
+    io.to(`group_${groupId}`).emit("groupUpdated", populated);
 
     res.status(200).json({ message: "Left group successfully" });
   } catch (error) {

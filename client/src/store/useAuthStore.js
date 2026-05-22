@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { API_BASE } from "../config";
 
 
-const useAuthStore = create((set, get) => ({
+const useAuthStore = create((set) => ({
   authUser: null,
   token: localStorage.getItem("_token") || null,
   isLoggingIn: false,

@@ -42,7 +42,7 @@ const ChatArea = () => {
       markAsRead(selectedUser._id);
     }
     return () => unsubscribeFromMessages(socket);
-  }, [selectedUser, socket]);
+  }, [selectedUser, socket, getMessages, subscribeToMessages, unsubscribeFromMessages, markAsRead]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

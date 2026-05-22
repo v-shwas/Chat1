@@ -225,6 +225,32 @@ describe("GET /api/groups/:id", () => {
     expect(res.body.members[0]).toHaveProperty("fullname");
   });
 
+  it("returns 403 when an authenticated non-member requests the group", async () => {
+    const { token: creatorToken } = await createTestUser({
+      username: "privateCreator",
+      email: "privateCreator@example.com",
+    });
+    const { user: member } = await createTestUser({
+      username: "privateMember",
+      email: "privateMember@example.com",
+    });
+    const { token: outsiderToken } = await createTestUser({
+      username: "privateOutsider",
+      email: "privateOutsider@example.com",
+    });
+
+    const createRes = await apiCreateGroup(app, creatorToken, {
+      name: "Members Only",
+      members: [member._id.toString()],
+    });
+
+    const res = await request(app)
+      .get(`/api/groups/${createRes.body._id}`)
+      .set("Authorization", `Bearer ${outsiderToken}`);
+
+    expect(res.status).toBe(403);
+  });
+
   it("returns 404 for a non-existent group", async () => {
     const { token } = await createTestUser({
       username: "getGrp404",
@@ -365,6 +391,32 @@ describe("GET /api/groups/:id/messages", () => {
     expect(res.body[0].message).toBe("First group message");
   });
 
+  it("returns 403 when a non-member requests group messages", async () => {
+    const { token: creatorToken } = await createTestUser({
+      username: "grpMsgPrivateCreator",
+      email: "grpMsgPrivateCreator@example.com",
+    });
+    const { user: member } = await createTestUser({
+      username: "grpMsgPrivateMember",
+      email: "grpMsgPrivateMember@example.com",
+    });
+    const { token: outsiderToken } = await createTestUser({
+      username: "grpMsgPrivateOutsider",
+      email: "grpMsgPrivateOutsider@example.com",
+    });
+
+    const createRes = await apiCreateGroup(app, creatorToken, {
+      name: "Private Messages Group",
+      members: [member._id.toString()],
+    });
+
+    const res = await request(app)
+      .get(`/api/groups/${createRes.body._id}/messages`)
+      .set("Authorization", `Bearer ${outsiderToken}`);
+
+    expect(res.status).toBe(403);
+  });
+
   it("returns 404 for a non-existent group", async () => {
     const { token } = await createTestUser({
       username: "getGrpMsg404",
@@ -420,6 +472,30 @@ describe("POST /api/groups/:id/add-members", () => {
     expect(res.status).toBe(200);
     const memberIds = res.body.members.map((m) => m._id.toString());
     expect(memberIds).toContain(newMember._id.toString());
+  });
+
+  it("returns 400 when adding a non-existent member id", async () => {
+    const { token: adminToken } = await createTestUser({
+      username: "addMissingAdmin",
+      email: "addMissingAdmin@example.com",
+    });
+    const { user: existingMember } = await createTestUser({
+      username: "addMissingExisting",
+      email: "addMissingExisting@example.com",
+    });
+
+    const createRes = await apiCreateGroup(app, adminToken, {
+      name: "Add Missing Member Group",
+      members: [existingMember._id.toString()],
+    });
+
+    const res = await request(app)
+      .post(`/api/groups/${createRes.body._id}/add-members`)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ members: [new mongoose.Types.ObjectId().toString()] });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/do not exist/i);
   });
 
   it("returns 403 when a non-admin tries to add members", async () => {

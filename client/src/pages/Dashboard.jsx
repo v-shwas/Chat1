@@ -21,14 +21,14 @@ const Dashboard = () => {
   useEffect(() => {
     getUsers();
     getMyGroups();
-  }, []);
+  }, [getUsers, getMyGroups]);
 
   useEffect(() => {
     if (socket) {
       setupCallListeners(socket);
     }
     return () => removeCallListeners(socket);
-  }, [socket]);
+  }, [socket, setupCallListeners, removeCallListeners]);
 
   const hasActiveThread = selectedUser || selectedGroup;
 

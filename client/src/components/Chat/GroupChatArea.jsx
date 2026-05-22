@@ -25,7 +25,7 @@ const GroupChatArea = () => {
       getGroupMessages(selectedGroup._id);
       if (socket) socket.emit("joinGroup", selectedGroup._id);
     }
-  }, [selectedGroup]);
+  }, [selectedGroup, getGroupMessages, socket]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

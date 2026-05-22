@@ -25,7 +25,7 @@ const App = () => {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
   useEffect(() => {
     if (authUser?._id) {
@@ -34,7 +34,7 @@ const App = () => {
     return () => {
       disconnectSocket();
     };
-  }, [authUser]);
+  }, [authUser, connectSocket, disconnectSocket]);
 
   return (
     <>

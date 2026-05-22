@@ -25,14 +25,14 @@ const Sidebar = () => {
 
   useEffect(() => {
     getMyGroups();
-  }, []);
+  }, [getMyGroups]);
 
   useEffect(() => {
     if (socket) {
       subscribeToGroupMessages(socket);
     }
     return () => unsubscribeFromGroupMessages(socket);
-  }, [socket]);
+  }, [socket, subscribeToGroupMessages, unsubscribeFromGroupMessages]);
 
   const handleSelectUser = (user) => {
     setSelectedUser(user);

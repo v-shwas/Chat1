@@ -1,3 +1,1 @@
-import axios from "axios";
-
-const primaryUserData = () => {};
+export const primaryUserData = () => null;
