@@ -23,7 +23,8 @@
       "^../../socket/socket\\.js$": "<rootDir>/tests/__mocks__/socket.js",
       "^../middlewares/upload\\.js$": "<rootDir>/tests/__mocks__/upload.js",
       "^../../middlewares/upload\\.js$": "<rootDir>/tests/__mocks__/upload.js"
-    }
+    },
+    "testTimeout": 120000
   },
   "keywords": [],
   "author": "",

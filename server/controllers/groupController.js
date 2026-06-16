@@ -36,9 +36,9 @@ const requireMember = (group, userId, res) => {
   return true;
 };
 
-const requireAdmin = (group, userId, res) => {
+const requireAdmin = (group, userId, res, errorMessage = "Only admins can manage this group") => {
   if (!includesId(group.admins, userId)) {
-    res.status(403).json({ error: "Only admins can manage this group" });
+    res.status(403).json({ error: errorMessage });
     return false;
   }
   return true;
@@ -195,7 +195,7 @@ export const addMembers = async (req, res) => {
     }
 
     const group = await findGroup(groupId, res);
-    if (!group || !requireAdmin(group, userId, res)) return;
+    if (!group || !requireAdmin(group, userId, res, "Only admins can add members")) return;
 
     const memberIds = await validateUserIds(members, res);
     if (!memberIds) return;
@@ -232,7 +232,7 @@ export const removeMember = async (req, res) => {
     }
 
     const group = await findGroup(groupId, res);
-    if (!group || !requireAdmin(group, userId, res)) return;
+    if (!group || !requireAdmin(group, userId, res, "Only admins can remove members")) return;
 
     if (!includesId(group.members, memberId)) {
       return res.status(400).json({ error: "User is not a member of this group" });

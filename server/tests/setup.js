@@ -1,5 +1,12 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const setupFilePath = fileURLToPath(import.meta.url);
+const setupDir = path.dirname(setupFilePath);
+
+process.env.MONGOMS_DOWNLOAD_DIR ||= path.join(setupDir, "..", ".cache", "mongodb-binaries");
 
 let mongod;
 
