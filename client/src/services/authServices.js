@@ -1,6 +1,7 @@
 import axios from "axios";
+import { API_BASE } from "../config";
 
-const authAPI = "http://localhost:3000/api/auth";
+const authAPI = `${API_BASE}/auth`;
 
 const userLogin = (data) => {
   return axios.post(`${authAPI}/login`, data);

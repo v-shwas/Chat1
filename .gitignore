@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+server/.env
+client/.env
+client/.env.production
+
+# Build output
+client/dist/
+dist/
+dist-ssr/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test / tooling artifacts
+test-results/
+playwright-report/
+server/.cache/
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# Stray files
+temp.txt
+*.timestamp-*.mjs
